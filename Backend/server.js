@@ -1,5 +1,5 @@
 // backend/server.js
-const { syncDatabase } = require('./models/index');
+const { syncDatabase } = require('./Models/index');
 const path = require('path');
 require("dotenv").config();
 const express = require("express");
