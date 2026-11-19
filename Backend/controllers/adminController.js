@@ -1,5 +1,5 @@
 // backend/controllers/adminController.js
-const { User, Product, Order } = require('../models/index');
+const { User, Product, Order } = require('../Models/index');
 const { Op } = require('sequelize');
 
 // GET /api/admin/stats

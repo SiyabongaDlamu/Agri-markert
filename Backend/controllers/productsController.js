@@ -3,7 +3,7 @@
 
 const { Op } = require('sequelize');
 const { validationResult } = require('express-validator');
-const { Product } = require('../models/index');
+const { Product } = require('../Models/index');
 
 // GET /api/products
 async function getAllProducts(req, res) {

@@ -1,6 +1,6 @@
 // backend/middleware/auth.js
 const jwt = require('jsonwebtoken');
-const { User } = require('../models/index');
+const { User } = require('../Models/index');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'agri-market-secret-key';
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'admin-secret-token-2024';

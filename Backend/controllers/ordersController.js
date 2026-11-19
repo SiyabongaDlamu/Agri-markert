@@ -1,5 +1,5 @@
 // backend/controllers/ordersController.js
-const { Order, Product } = require('../models/index');
+const { Order, Product } = require('../Models/index');
 
 const TRACKING_STEPS = {
   order_placed:     { step: 1, label: 'Order Placed' },
