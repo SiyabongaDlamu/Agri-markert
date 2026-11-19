@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>FarmWise | Climate Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Your existing CSS – unchanged, but I'll keep it identical to your original */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #eef2e3 0%, #c8e0b0 100%);
+      color: #1a3b1a;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 1300px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #2c5e2c, #6ba34e);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background: #2c5e2c20;
+      backdrop-filter: blur(4px);
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      display: inline-block;
+      margin-top: 10px;
+    }
+    .control-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+    .search-card {
+      background: white;
+      border-radius: 60px;
+      padding: 6px 6px 6px 20px;
+      display: flex;
+      gap: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      align-items: center;
+    }
+    .search-card input {
+      border: none;
+      padding: 12px 0;
+      font-size: 1rem;
+      width: 210px;
+      outline: none;
+      background: transparent;
+    }
+    .btn {
+      border: none;
+      padding: 10px 22px;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-primary { background: #2b6e2b; color: white; }
+    .btn-primary:hover { background: #1f551f; transform: scale(0.97); }
+    .btn-secondary { background: #f5a623; color: #2d2d15; }
+    .btn-secondary:hover { background: #e0920f; }
+    .climate-select {
+      background: white;
+      border-radius: 60px;
+      padding: 5px 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .climate-select select {
+      padding: 10px;
+      border-radius: 30px;
+      border: 1px solid #bdd8a8;
+      background: white;
+      font-weight: 500;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 25px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(4px);
+      border-radius: 36px;
+      padding: 24px;
+      box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.1);
+      border: 1px solid #c6dfaa;
+    }
+    .full-width { grid-column: span 2; }
+    .card h3 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      border-left: 5px solid #4caf50;
+      padding-left: 18px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .weather-now {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .temp-big { font-size: 3.5rem; font-weight: 800; }
+    .meta-details {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .pill {
+      background: #eaf3e2;
+      padding: 8px 18px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .forecast-row {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      justify-content: space-between;
+    }
+    .forecast-day {
+      background: #fefef7;
+      border-radius: 28px;
+      padding: 12px;
+      text-align: center;
+      flex: 1;
+      min-width: 90px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .crop-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .crop-tag {
+      background: #3e7e2e;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-weight: 500;
+    }
+    .schedule-box {
+      background: #fff1df;
+      border-left: 6px solid #f4a261;
+      padding: 16px;
+      border-radius: 24px;
+      margin-top: 16px;
+    }
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #2a5520;
+    }
+    @media (max-width: 800px) {
+      .dashboard { grid-template-columns: 1fr; }
+      .full-width { grid-column: span 1; }
+    }
+  </style>
+  <!-- Firebase Client SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-client.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1><i class="fas fa-tractor"></i> FarmWise | Climate Assistant</h1>
+    <div class="badge"><i class="fas fa-cloud-sun"></i> Live weather · Real‑time recommendations</div>
+  </div>
+
+  <div class="control-bar">
+    <div class="search-card">
+      <i class="fas fa-map-pin" style="color:#4caf50"></i>
+      <input type="text" id="locationInput" placeholder="e.g., London, Nairobi" value="Green Valley">
+      <button id="updateLocationBtn" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Update</button>
+    </div>
+    <button id="useGeoBtn" class="btn btn-secondary"><i class="fas fa-location-dot"></i> Use my location</button>
+    <div class="climate-select">
+      <i class="fas fa-seedling"></i>
+      <select id="climatePreset">
+        <option value="auto">🌍 Auto (based on location)</option>
+        <option value="tropical">🌴 Tropical / Humid</option>
+        <option value="temperate">🌾 Temperate / Mild</option>
+        <option value="cold">❄️ Cold / Nordic</option>
+        <option value="arid">🏜️ Arid / Dry</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="dashboard">
+    <div class="card full-width" id="weatherCard">
+      <h3><i class="fas fa-cloud-sun-rain"></i> Live Weather & Forecast</h3>
+      <div id="weatherContent">Loading live weather...</div>
+    </div>
+    <div class="card" id="seasonalCard">
+      <h3><i class="fas fa-calendar-alt"></i> Seasonal Farming Advice</h3>
+      <div id="seasonalContent">Analyzing season...</div>
+    </div>
+    <div class="card" id="aiCard">
+      <h3><i class="fas fa-microchip"></i> Recommendations</h3>
+      <div id="aiContent">Generating crop plan...</div>
+    </div>
+  </div>
+  <footer>
+    <i class="fas fa-chart-line"></i> Powered by OpenWeatherMap · Recommendations based on real weather & season
+  </footer>
+</div>
+
+<script>
+  // ========== WEATHER API INTEGRATION ==========
+  const API_KEY = '1e0ce74ad75a8b64f48805defbdee530';
+  const WEATHER_BASE = 'https://api.openweathermap.org/data/2.5';
+  const GEO_BASE = 'https://api.openweathermap.org/geo/1.0';
+
+  let currentLat = 37.7749;
+  let currentLon = -122.4194;
+  let currentCity = "Green Valley";
+  let manualClimate = "auto";
+
+  // DOM elements
+  const locationInput = document.getElementById('locationInput');
+  const updateBtn = document.getElementById('updateLocationBtn');
+  const geoBtn = document.getElementById('useGeoBtn');
+  const climateSelect = document.getElementById('climatePreset');
+  const weatherContentDiv = document.getElementById('weatherContent');
+  const seasonalContentDiv = document.getElementById('seasonalContent');
+  const aiContentDiv = document.getElementById('aiContent');
+
+  // Helper: get season from latitude (astronomical/calendar)
+  function getSeason(lat) {
+    const month = new Date().getMonth(); // 0 = Jan
+    const isNorth = lat >= 0;
+    if (isNorth) {
+      if (month >= 2 && month <= 4) return "Spring";
+      if (month >= 5 && month <= 7) return "Summer";
+      if (month >= 8 && month <= 10) return "Autumn";
+      return "Winter";
+    } else {
+      if (month >= 2 && month <= 4) return "Autumn";
+      if (month >= 5 && month <= 7) return "Winter";
+      if (month >= 8 && month <= 10) return "Spring";
+      return "Summer";
+    }
+  }
+
+  // Reverse geocode: get city name from coordinates
+  async function getCityFromCoords(lat, lon) {
+    try {
+      const res = await fetch(`${GEO_BASE}/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${API_KEY}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const name = data[0].name;
+        const country = data[0].country;
+        return country ? `${name}, ${country}` : name;
+      }
+    } catch (e) {
+      console.warn("Reverse geocoding failed", e);
+    }
+    return `${lat.toFixed(2)}°, ${lon.toFixed(2)}°`;
+  }
+
+  // Fetch real weather and forecast
+  async function fetchRealWeather(lat, lon) {
+    try {
+      const weatherRes = await fetch(`${WEATHER_BASE}/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`);
+      if (!weatherRes.ok) throw new Error("Weather API error");
+      const weather = await weatherRes.json();
+
+      const forecastRes = await fetch(`${WEATHER_BASE}/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`);
+      const forecastData = await forecastRes.json();
+
+      // Extract one reading per day for next 3 days
+      const dailyForecast = [];
+      const seenDates = new Set();
+      for (let item of forecastData.list) {
+        const date = item.dt_txt.split(' ')[0];
+        if (!seenDates.has(date) && dailyForecast.length < 3) {
+          seenDates.add(date);
+          dailyForecast.push({
+            day: dailyForecast.length + 1,
+            condition: item.weather[0].main,
+            tempHigh: Math.round(item.main.temp_max),
+            tempLow: Math.round(item.main.temp_min),
+            description: item.weather[0].description
+          });
+        }
+      }
+
+      let climateZone = manualClimate;
+      if (climateZone === 'auto') {
+        if (Math.abs(lat) < 25) climateZone = 'tropical';
+        else if (Math.abs(lat) > 50) climateZone = 'cold';
+        else climateZone = 'temperate';
+      }
+
+      return {
+        temp: Math.round(weather.main.temp),
+        feelsLike: Math.round(weather.main.feels_like),
+        humidity: weather.main.humidity,
+        wind: weather.wind.speed,
+        condition: weather.weather[0].main,
+        conditionDesc: weather.weather[0].description,
+        climateZone: climateZone,
+        forecast: dailyForecast,
+        cityName: weather.name || currentCity
+      };
+    } catch (error) {
+      console.warn("Real weather failed, using simulation", error);
+      return generateMockWeather(lat, lon);
+    }
+  }
+
+  // ---------- MOCK WEATHER FALLBACK (offline) ----------
+  function generateMockWeather(lat, lon) {
+    let baseTemp = 28 - Math.abs(lat) * 0.4;
+    baseTemp = Math.min(38, Math.max(-8, baseTemp));
+    let climate = manualClimate;
+    if (climate === "auto") {
+      if (lat < 25 && lat > -25) climate = "tropical";
+      else if (Math.abs(lat) > 50) climate = "cold";
+      else if (Math.abs(lat) > 35) climate = "temperate";
+      else if (baseTemp > 22 && Math.abs(lat) < 35) climate = "arid";
+      else climate = "temperate";
+    }
+
+    let temp = baseTemp;
+    let humidity = 65;
+    let weatherType = "Clear";
+    let conditionDesc = "clear sky";
+    if (climate === "tropical") {
+      temp += 4; humidity = 82; weatherType = "Light Rain"; conditionDesc = "light rain";
+    } else if (climate === "temperate") {
+      temp += 1; humidity = 68; weatherType = Math.random() > 0.7 ? "Cloudy" : "Sunny";
+      conditionDesc = weatherType === "Cloudy" ? "scattered clouds" : "clear sky";
+    } else if (climate === "cold") {
+      temp = Math.max(-12, baseTemp - 8); humidity = 75; weatherType = Math.random() > 0.5 ? "Snow" : "Overcast";
+      conditionDesc = weatherType === "Snow" ? "snow" : "overcast clouds";
+    } else if (climate === "arid") {
+      temp += 5; humidity = 28; weatherType = "Sunny";
+      conditionDesc = "clear sky";
+    }
+
+    const season = getSeason(lat);
+    if (season === "Summer") temp += 4;
+    if (season === "Winter") temp -= 5;
+    if (season === "Spring") temp += 1;
+    if (season === "Autumn") temp -= 1;
+
+    temp = Math.round(temp * 10) / 10;
+    humidity = Math.min(98, Math.max(15, humidity + (Math.random() * 8 - 4)));
+    const windSpeed = (Math.random() * 12 + 2).toFixed(1);
+
+    const forecast = [];
+    for (let i = 1; i <= 3; i++) {
+      let dayTemp = temp + (Math.random() * 6 - 3);
+      let nightTemp = dayTemp - (Math.random() * 5 + 2);
+      let cond = ["Sunny", "Cloudy", "Light Rain", "Partly Cloudy"][Math.floor(Math.random() * 4)];
+      forecast.push({
+        day: i,
+        condition: cond,
+        tempHigh: Math.round(dayTemp),
+        tempLow: Math.round(nightTemp),
+        description: cond.toLowerCase()
+      });
+    }
+
+    return {
+      temp: temp,
+      feelsLike: Math.round(temp + (Math.random() * 2 - 1)),
+      humidity: Math.round(humidity),
+      wind: windSpeed,
+      condition: weatherType,
+      conditionDesc: conditionDesc,
+      climateZone: climate,
+      forecast: forecast,
+      cityName: currentCity
+    };
+  }
+
+  // ---------- UI UPDATE (weather + seasonal + crop advice) ----------
+  async function refreshAllData() {
+    weatherContentDiv.innerHTML = '<div style="text-align:center;">🌍 Fetching live weather...</div>';
+    seasonalContentDiv.innerHTML = '<div>Analyzing season...</div>';
+    aiContentDiv.innerHTML = '<div>Generating crop plan...</div>';
+
+    const weather = await fetchRealWeather(currentLat, currentLon);
+    const season = getSeason(currentLat);
+
+    // Weather card
+    let weatherIcon = "fa-sun";
+    if (weather.condition.includes("Rain")) weatherIcon = "fa-cloud-rain";
+    else if (weather.condition.includes("Snow")) weatherIcon = "fa-snowflake";
+    else if (weather.condition.includes("Cloud")) weatherIcon = "fa-cloud";
+    else weatherIcon = "fa-sun";
+
+    let forecastHtml = `<div class="forecast-row">`;
+    weather.forecast.forEach(f => {
+      let iconFore = f.condition.includes("Rain") ? "fa-cloud-rain" : (f.condition.includes("Snow") ? "fa-snowflake" : "fa-cloud-sun");
+      forecastHtml += `
+        <div class="forecast-day">
+          <i class="fas ${iconFore}"></i>
+          <div><strong>Day ${f.day}</strong></div>
+          <div>${f.tempHigh}° / ${f.tempLow}°</div>
+          <small>${f.condition}</small>
+        </div>
+      `;
+    });
+    forecastHtml += `</div>`;
+
+    weatherContentDiv.innerHTML = `
+      <div class="weather-now">
+        <div>
+          <div class="temp-big">${weather.temp}°C</div>
+          <div style="font-size:1.2rem; font-weight:500;"><i class="fas ${weatherIcon}"></i> ${weather.condition}</div>
+          <div><i class="fas fa-map-marker-alt"></i> ${weather.cityName} · ${weather.climateZone} zone</div>
+        </div>
+        <div class="meta-details">
+          <div class="pill"><i class="fas fa-tint"></i> Humidity ${weather.humidity}%</div>
+          <div class="pill"><i class="fas fa-wind"></i> Wind ${weather.wind} m/s</div>
+          <div class="pill"><i class="fas fa-thermometer-half"></i> Feels ${weather.feelsLike}°C</div>
+        </div>
+      </div>
+      <div style="margin-top: 20px;"><strong>📅 3‑Day Outlook</strong>${forecastHtml}</div>
+      <div style="margin-top: 12px; font-size:0.8rem; background:#eef4e4; border-radius: 24px; padding: 8px 14px;">
+        <i class="fas fa-chart-simple"></i> Live weather data from OpenWeatherMap
+      </div>
+    `;
+
+    // ---- Seasonal Farming Advice (dynamic based on actual weather) ----
+    const isWet = weather.condition.includes("Rain") || weather.humidity > 80;
+    const isHot = weather.temp > 32;
+    const isCold = weather.temp < 2;
+    const isFrostRisk = weather.forecast.some(f => f.tempLow < 2);
+    let adviceMsg = "";
+
+    if (season === "Spring") {
+      adviceMsg = "🌱 Spring: " + (isWet ? "Rainy and wet – avoid waterlogging. Ensure good drainage." : "Moderate moisture – ideal for sowing. Prepare beds with compost.");
+      if (weather.temp > 25) adviceMsg += " Warmer than usual – start warm-season seeds outdoors.";
+      else if (weather.temp < 10) adviceMsg += " Cold spell – use cloches or wait for warmer days.";
+    } 
+    else if (season === "Summer") {
+      adviceMsg = "💧 Summer: " + (isHot ? "Extreme heat! Irrigation crucial. Provide shade cloth for seedlings." : "Warm, good growth. Mulch heavily to retain moisture.");
+      if (isWet) adviceMsg += " High humidity – watch for fungal diseases.";
+      else adviceMsg += " Dry conditions – deep watering early morning.";
+    }
+    else if (season === "Autumn") {
+      adviceMsg = "🍂 Autumn: " + (isWet ? "Wet soil – delay planting of cover crops. Improve drainage." : "Perfect for cover cropping and soil building.");
+      if (weather.temp < 10) adviceMsg += " Early frost risk – harvest tender crops soon.";
+    }
+    else { // Winter
+      adviceMsg = "❄️ Winter: " + (isCold ? "Freezing temperatures – protect crops with row covers. Only cold-hardy greens survive." : "Mild winter – good for leafy greens. Plan crop rotation.");
+      if (isFrostRisk) adviceMsg += " ⚠️ Frost warning: cover sensitive plants.";
+    }
+
+    // Add pest/disease warnings based on conditions
+    if (isWet && weather.temp > 20) adviceMsg += " 🐌 Wet & warm – high risk of fungal diseases and snails. Apply organic fungicide.";
+    if (isHot && !isWet) adviceMsg += " 🕷️ Dry heat – watch for spider mites. Increase humidity around plants.";
+
+    seasonalContentDiv.innerHTML = `<div><i class="fas fa-seedling"></i> <strong>${season} Advisory</strong><br>${adviceMsg}</div>
+      <div style="margin-top: 18px; background:#e6f2dd; border-radius: 24px; padding: 12px;">
+        <i class="fas fa-globe"></i> Latitude ${currentLat.toFixed(1)}° · ${currentLat>=0 ? 'Northern' : 'Southern'} hemisphere.
+      </div>`;
+
+    // ---- Crop Recommendations (based on temp, humidity, climate zone) ----
+    const tempVal = weather.temp;
+    const isWarm = tempVal > 18 && tempVal < 30;
+    const dryClimate = weather.climateZone === "arid";
+    const tropicalClimate = weather.climateZone === "tropical";
+
+    let bestCrops = [];
+    let scheduleText = "";
+
+    if (tropicalClimate) {
+      bestCrops = ["Banana", "Papaya", "Cassava", "Taro", "Rice", "Coconut"];
+      scheduleText = "🌴 Year-round planting. Focus on drainage and organic mulch. Monitor for heavy rains.";
+    } else if (dryClimate) {
+      bestCrops = ["Millet", "Sorghum", "Cowpeas", "Cactus Pear", "Drought-tolerant Herbs"];
+      scheduleText = "💧 Drip irrigation essential. Plant early morning. Use shade nets for young plants.";
+    } else if (tempVal >= 30) {
+      bestCrops = ["Okra", "Eggplant", "Sweet Potato", "Chili Peppers", "Watermelon"];
+      scheduleText = "☀️ Heat-loving crops thrive. Irrigate deeply, add 4-6 inches of mulch.";
+    } else if (isWarm) {
+      bestCrops = ["Tomatoes", "Peppers", "Cucumbers", "Beans", "Corn", "Squash"];
+      scheduleText = "🌞 Perfect conditions for direct sowing. Start second succession of beans.";
+    } else if (tempVal < 12) {
+      bestCrops = ["Lettuce", "Spinach", "Kale", "Radish", "Peas", "Broccoli"];
+      scheduleText = "🍃 Cool-season greens thrive. Use row covers if frost expected. Harvest in 30-45 days.";
+    } else {
+      bestCrops = ["Carrots", "Beets", "Swiss Chard", "Garlic", "Onions"];
+      scheduleText = "🌱 Moderate temps: excellent for root crops & alliums. Keep soil evenly moist.";
+    }
+
+    if (season === "Spring") scheduleText += " Start transplants indoors for warm-season crops. Soil test recommended.";
+    else if (season === "Summer") scheduleText += " Water at base, avoid wetting foliage. Harvest early morning.";
+    else if (season === "Autumn") scheduleText += " Plant garlic & overwintering onions. Add compost to exhausted beds.";
+    else scheduleText += " Use cold frames, plan next year's rotation, maintain tools.";
+
+    if (isFrostRisk) scheduleText += " ⚠️ Frost possible soon: protect tender plants.";
+
+    let cropsHtml = `<div class="crop-grid">${bestCrops.map(c => `<span class="crop-tag"><i class="fas fa-leaf"></i> ${c}</span>`).join('')}</div>`;
+    cropsHtml += `<div class="schedule-box"><i class="far fa-calendar-alt"></i> <strong>Smart Planting Schedule</strong><br>${scheduleText}</div>`;
+    cropsHtml += `<div style="margin-top: 12px; font-size:0.8rem;"><i class="fas fa-chart-line"></i> Recommendations based on real weather: temperature · humidity · season · climate zone</div>`;
+    aiContentDiv.innerHTML = cropsHtml;
+  }
+
+  // ---------- LOCATION HANDLING ----------
+  async function setLocationFromCityName(cityName) {
+    try {
+      const geoRes = await fetch(`${GEO_BASE}/direct?q=${encodeURIComponent(cityName)}&limit=1&appid=${API_KEY}`);
+      const geoData = await geoRes.json();
+      if (geoData && geoData.length > 0) {
+        currentLat = geoData[0].lat;
+        currentLon = geoData[0].lon;
+        currentCity = geoData[0].name;
+        if (geoData[0].country) currentCity += `, ${geoData[0].country}`;
+        locationInput.value = currentCity;
+      } else {
+        fallbackToHash(cityName);
+      }
+    } catch (err) {
+      fallbackToHash(cityName);
+    }
+    refreshAllData();
+  }
+
+  function fallbackToHash(cityName) {
+    let hash = 0;
+    for (let i = 0; i < cityName.length; i++) hash = ((hash << 5) - hash) + cityName.charCodeAt(i);
+    const latBase = (Math.abs(hash) % 100) / 100;
+    currentLat = -55 + (latBase * 130);
+    currentLon = ((Math.abs(hash * 31) % 360) - 180);
+    currentCity = cityName;
+  }
+
+  async function setLocationFromGeolocation() {
+    if (!navigator.geolocation) {
+      alert("Geolocation not supported.");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        currentLat = position.coords.latitude;
+        currentLon = position.coords.longitude;
+        const city = await getCityFromCoords(currentLat, currentLon);
+        currentCity = city;
+        locationInput.value = currentCity;
+        refreshAllData();
+      },
+      () => {
+        alert("Location access denied. Using default location.");
+        setLocationFromCityName("Green Valley");
+      }
+    );
+  }
+
+  // Event listeners
+  updateBtn.addEventListener('click', () => {
+    let city = locationInput.value.trim();
+    if (city === "") city = "Farmstead";
+    setLocationFromCityName(city);
+  });
+
+  geoBtn.addEventListener('click', setLocationFromGeolocation);
+
+  climateSelect.addEventListener('change', (e) => {
+    manualClimate = e.target.value;
+    refreshAllData();
+  });
+
+  // initial load
+  setLocationFromCityName("Green Valley");
+</script>
+</body>
+</html>

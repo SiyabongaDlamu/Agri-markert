@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriMarket Admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/tabler-icons.min.css" />
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #4ade80;
+      --accent2: #22d3ee;
+      --danger: #f87171;
+      --warn: #fbbf24;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 0;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .sidebar-logo h2 { font-size: 18px; color: var(--accent); font-weight: 700; }
+    .sidebar-logo span { font-size: 11px; color: var(--muted); }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 20px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+      transition: all .2s;
+      position: relative;
+    }
+    .nav-item:hover { color: var(--text); background: var(--surface2); }
+    .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(74,222,128,.07); }
+    .nav-item i { font-size: 18px; }
+
+    .badge {
+      margin-left: auto;
+      background: var(--danger);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 99px;
+      padding: 2px 7px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* ── Main ── */
+    .main {
+      margin-left: 240px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar h1 { font-size: 20px; font-weight: 700; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+    .admin-badge {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 99px;
+    }
+
+    .content { padding: 28px; flex: 1; }
+
+    /* ── Tabs / Sections ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── Stat Cards ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .stat-card .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .stat-card .value { font-size: 32px; font-weight: 800; }
+    .stat-card .icon { float: right; font-size: 24px; opacity: .4; }
+    .c-green { color: var(--accent); }
+    .c-cyan  { color: var(--accent2); }
+    .c-warn  { color: var(--warn); }
+    .c-red   { color: var(--danger); }
+
+    /* ── Tables ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .card-header h3 { font-size: 15px; font-weight: 600; }
+
+    .search-bar {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      color: var(--text);
+      font-size: 13px;
+      width: 220px;
+    }
+    .search-bar:focus { outline: none; border-color: var(--accent); }
+
+    .filter-select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th {
+      text-align: left;
+      padding: 12px 16px;
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      font-weight: 600;
+    }
+    tbody tr { border-top: 1px solid var(--border); transition: background .15s; }
+    tbody tr:hover { background: var(--surface2); }
+    td { padding: 12px 16px; vertical-align: middle; }
+
+    /* ── Badges ── */
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .pill-pending      { background: rgba(251,191,36,.15);  color: var(--warn); }
+    .pill-confirmed    { background: rgba(34,211,238,.15);  color: var(--accent2); }
+    .pill-delivered    { background: rgba(74,222,128,.15);  color: var(--accent); }
+    .pill-cancelled    { background: rgba(248,113,113,.15); color: var(--danger); }
+    .pill-approved     { background: rgba(74,222,128,.15);  color: var(--accent); }
+    .pill-pending-user { background: rgba(251,191,36,.15);  color: var(--warn); }
+    .pill-suspended    { background: rgba(248,113,113,.15); color: var(--danger); }
+    .pill-farmer       { background: rgba(34,211,238,.15);  color: var(--accent2); }
+    .pill-buyer        { background: rgba(74,222,128,.15);  color: var(--accent); }
+    .pill-supplier     { background: rgba(251,191,36,.15);  color: var(--warn); }
+
+    /* Tracking pills */
+    .pill-order_placed     { background: rgba(148,163,184,.15); color: var(--muted); }
+    .pill-processing       { background: rgba(251,191,36,.15);  color: var(--warn); }
+    .pill-dispatched       { background: rgba(34,211,238,.15);  color: var(--accent2); }
+    .pill-out_for_delivery { background: rgba(167,139,250,.15); color: #a78bfa; }
+    .pill-delivered-track  { background: rgba(74,222,128,.15);  color: var(--accent); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+    }
+    .btn-sm { padding: 5px 10px; font-size: 11px; }
+    .btn-green  { background: var(--accent);  color: #000; }
+    .btn-green:hover  { opacity: .85; }
+    .btn-cyan   { background: var(--accent2); color: #000; }
+    .btn-cyan:hover   { opacity: .85; }
+    .btn-red    { background: var(--danger);  color: #fff; }
+    .btn-red:hover    { opacity: .85; }
+    .btn-warn   { background: var(--warn);    color: #000; }
+    .btn-warn:hover   { opacity: .85; }
+    .btn-ghost  { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover  { border-color: var(--accent); color: var(--accent); }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .action-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.7);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp .25s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    .form-group select,
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 13px;
+    }
+    .form-group select:focus,
+    .form-group input:focus,
+    .form-group textarea:focus { outline: none; border-color: var(--accent); }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+    /* ── Tracking Stepper ── */
+    .tracking-stepper {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 4px 0;
+    }
+    .step-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    .step-dot.done { background: var(--accent); }
+    .step-dot.active { background: var(--accent2); box-shadow: 0 0 0 3px rgba(34,211,238,.25); }
+    .step-line {
+      flex: 1; height: 2px;
+      background: var(--border);
+    }
+    .step-line.done { background: var(--accent); }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed; bottom: 24px; right: 24px;
+      z-index: 999;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 13px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+      animation: fadeIn .3s ease;
+      max-width: 320px;
+    }
+    .toast.error { border-left-color: var(--danger); }
+    .toast.warn  { border-left-color: var(--warn); }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+    /* ── Empty / Loading ── */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; opacity: .3; }
+    .loading-row td { text-align: center; color: var(--muted); padding: 40px; }
+
+    /* ── Order detail inline expand ── */
+    .expand-row td { padding: 0; }
+    .expand-inner {
+      padding: 16px 20px;
+      background: #13151f;
+      border-top: 1px solid var(--border);
+    }
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .info-item .key { font-size: 11px; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; }
+    .info-item .val { font-size: 13px; }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h2> Agri-Market</h2>
+    <span>Admin Dashboard</span>
+  </div>
+
+  <nav>
+    <div class="nav-item active" data-section="overview" onclick="switchSection('overview',this)">
+      <i class="ti ti-layout-dashboard"></i> Overview
+    </div>
+    <div class="nav-item" data-section="orders" onclick="switchSection('orders',this)">
+      <i class="ti ti-shopping-cart"></i> Orders
+    </div>
+    <div class="nav-item" data-section="users" onclick="switchSection('users',this)">
+      <i class="ti ti-users"></i> Users
+      <span class="badge" id="approval-badge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" data-section="products" onclick="switchSection('products',this)">
+      <i class="ti ti-package"></i> Products
+    </div>
+  </nav>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <h1 id="section-title">Overview</h1>
+    <div class="topbar-right">
+      <span class="admin-badge">ADMIN</span>
+      <button class="btn btn-ghost btn-sm" onclick="refreshAll()">
+        <i class="ti ti-refresh"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── OVERVIEW ── -->
+    <section class="section active" id="section-overview">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label"><i class="ti ti-users icon"></i>Total Users</div>
+          <div class="value c-cyan" id="stat-users">–</div>
+        </div>
+        <div class="stat-card">
+          <div class="label"><i class="ti ti-package icon"></i>Products</div>
+          <div class="value c-green" id="stat-products">–</div>
+        </div>
+        <div class="stat-card">
+          <div class="label"><i class="ti ti-shopping-cart icon"></i>Orders</div>
+          <div class="value c-warn" id="stat-orders">–</div>
+        </div>
+        <div class="stat-card">
+          <div class="label"><i class="ti ti-coin icon"></i>Total Revenue</div>
+          <div class="value c-green" id="stat-revenue">–</div>
+        </div>
+        <div class="stat-card">
+          <div class="label"><i class="ti ti-check icon"></i>Delivered Revenue</div>
+          <div class="value c-cyan" id="stat-delivered-revenue">–</div>
+        </div>
+        <div class="stat-card">
+          <div class="label"><i class="ti ti-clock icon"></i>Pending Approvals</div>
+          <div class="value c-red" id="stat-pending">–</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Recent Orders</h3>
+          <button class="btn btn-ghost btn-sm" onclick="switchSection('orders', document.querySelector('[data-section=orders]'))">
+            View All <i class="ti ti-arrow-right"></i>
+          </button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Buyer</th><th>Product</th><th>Total</th><th>Status</th><th>Tracking</th>
+            </tr>
+          </thead>
+          <tbody id="recent-orders-body">
+            <tr class="loading-row"><td colspan="5">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── ORDERS ── -->
+    <section class="section" id="section-orders">
+      <div class="card">
+        <div class="card-header">
+          <h3>All Orders</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <input class="search-bar" id="order-search" placeholder="Search buyer / product…" oninput="filterOrders()" />
+            <select class="filter-select" id="order-status-filter" onchange="filterOrders()">
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Buyer</th>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Tracking</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="orders-body">
+            <tr class="loading-row"><td colspan="8">Loading orders…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── USERS ── -->
+    <section class="section" id="section-users">
+      <div class="card">
+        <div class="card-header">
+          <h3>All Users</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <input class="search-bar" id="user-search" placeholder="Search name / email…" oninput="filterUsers()" />
+            <select class="filter-select" id="user-role-filter" onchange="filterUsers()">
+              <option value="">All Roles</option>
+              <option value="farmer">Farmer</option>
+              <option value="buyer">Buyer</option>
+              <option value="supplier">Supplier</option>
+            </select>
+            <select class="filter-select" id="user-status-filter" onchange="filterUsers()">
+              <option value="">All Statuses</option>
+              <option value="pending">Pending Approval</option>
+              <option value="approved">Approved</option>
+              <option value="suspended">Suspended</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>Email</th><th>Role</th><th>Region</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-body">
+            <tr class="loading-row"><td colspan="6">Loading users…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── PRODUCTS ── -->
+    <section class="section" id="section-products">
+      <div class="card">
+        <div class="card-header">
+          <h3>All Products</h3>
+          <input class="search-bar" id="product-search" placeholder="Search products…" oninput="filterProducts()" />
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>Farmer</th><th>Price</th><th>Stock</th><th>Location</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="products-body">
+            <tr class="loading-row"><td colspan="6">Loading products…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ═══ TRACKING MODAL ═══ -->
+<div class="modal-overlay" id="tracking-modal">
+  <div class="modal">
+    <h3><i class="ti ti-map-pin" style="color:var(--accent2)"></i> Update Order Tracking</h3>
+    <input type="hidden" id="track-order-id" />
+
+    <div class="form-group">
+      <label>Order ID</label>
+      <input type="text" id="track-order-display" readonly style="opacity:.6" />
+    </div>
+    <div class="form-group">
+      <label>Tracking Status</label>
+      <select id="track-status">
+        <option value="order_placed">📦 Order Placed</option>
+        <option value="processing">⚙️ Processing</option>
+        <option value="dispatched">🚚 Dispatched</option>
+        <option value="out_for_delivery">🛵 Out for Delivery</option>
+        <option value="delivered">✅ Delivered</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Tracking Note (visible to buyer)</label>
+      <textarea id="track-note" placeholder="e.g. Your order is on its way to Johannesburg…"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Estimated Delivery</label>
+      <input type="text" id="track-eta" placeholder="e.g. 12 May 2026" />
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('tracking-modal')">Cancel</button>
+      <button class="btn btn-cyan" onclick="submitTracking()">
+        <i class="ti ti-check"></i> Save Tracking
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SUSPEND MODAL ═══ -->
+<div class="modal-overlay" id="suspend-modal">
+  <div class="modal">
+    <h3><i class="ti ti-ban" style="color:var(--danger)"></i> Suspend User</h3>
+    <input type="hidden" id="suspend-user-id" />
+    <div class="form-group">
+      <label>Reason for suspension</label>
+      <textarea id="suspend-reason" placeholder="Describe why this user is being suspended…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('suspend-modal')">Cancel</button>
+      <button class="btn btn-red" onclick="submitSuspend()">
+        <i class="ti ti-ban"></i> Suspend
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONFIRM MODAL ═══ -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal" style="max-width:380px;">
+    <h3 id="confirm-title">Are you sure?</h3>
+    <p id="confirm-msg" style="color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.6;"></p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('confirm-modal')">Cancel</button>
+      <button class="btn btn-red" id="confirm-ok-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOAST CONTAINER ═══ -->
+<div class="toast-container" id="toasts"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════
+const API = '/api';
+const ADMIN_TOKEN = 'admin-secret-token-2024'; // match your .env ADMIN_TOKEN
+
+const TRACKING_LABELS = {
+  order_placed:     'Order Placed',
+  processing:       'Processing',
+  dispatched:       'Dispatched',
+  out_for_delivery: 'Out for Delivery',
+  delivered:        'Delivered'
+};
+
+const TRACKING_ORDER = ['order_placed','processing','dispatched','out_for_delivery','delivered'];
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let allOrders   = [];
+let allUsers    = [];
+let allProducts = [];
+
+// ═══════════════════════════════════════════════
+// HTTP HELPERS
+// ═══════════════════════════════════════════════
+async function adminFetch(path, options = {}) {
+  const res = await fetch(API + path, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-token': ADMIN_TOKEN,
+      ...(options.headers || {})
+    }
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast ${type === 'error' ? 'error' : type === 'warn' ? 'warn' : ''}`;
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ═══════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+const TITLES = { overview:'Overview', orders:'Orders', users:'Users', products:'Products' };
+
+function switchSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('section-title').textContent = TITLES[id] || id;
+
+  if (id === 'orders')   loadOrders();
+  if (id === 'users')    loadUsers();
+  if (id === 'products') loadProducts();
+}
+
+// ═══════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════
+async function loadStats() {
+  try {
+    const data = await adminFetch('/admin/stats');
+    document.getElementById('stat-users').textContent             = data.totalUsers;
+    document.getElementById('stat-products').textContent          = data.totalProducts;
+    document.getElementById('stat-orders').textContent            = data.totalOrders;
+    document.getElementById('stat-revenue').textContent           = 'R ' + Number(data.totalRevenue).toFixed(2);
+    document.getElementById('stat-delivered-revenue').textContent = 'R ' + Number(data.deliveredRevenue).toFixed(2);
+    document.getElementById('stat-pending').textContent           = data.pendingApprovals;
+
+    const badge = document.getElementById('approval-badge');
+    if (data.pendingApprovals > 0) {
+      badge.textContent = data.pendingApprovals;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  } catch (e) { toast('Failed to load stats: ' + e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════
+// ORDERS
+// ═══════════════════════════════════════════════
+async function loadOrders() {
+  document.getElementById('orders-body').innerHTML = '<tr class="loading-row"><td colspan="8">Loading orders…</td></tr>';
+  try {
+    const data = await adminFetch('/admin/orders');
+    allOrders = data.orders || [];
+    renderOrders(allOrders);
+    renderRecentOrders(allOrders.slice(0, 5));
+  } catch (e) {
+    toast('Failed to load orders: ' + e.message, 'error');
+    document.getElementById('orders-body').innerHTML = `<tr class="loading-row"><td colspan="8" style="color:var(--danger)">Error: ${e.message}</td></tr>`;
+  }
+}
+
+function renderRecentOrders(orders) {
+  const tbody = document.getElementById('recent-orders-body');
+  if (!orders.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="5">No orders yet.</td></tr>'; return; }
+  tbody.innerHTML = orders.map(o => `
+    <tr>
+      <td>${o.buyerName || o.buyerEmail}</td>
+      <td>${o.productName || '—'}</td>
+      <td>R ${Number(o.totalPrice).toFixed(2)}</td>
+      <td><span class="pill pill-${o.status}">${capitalize(o.status)}</span></td>
+      <td>${renderTrackingStepper(o)}</td>
+    </tr>
+  `).join('');
+}
+
+function renderOrders(orders) {
+  const tbody = document.getElementById('orders-body');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="8">No orders found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = orders.map(o => `
+    <tr id="row-${o.id}">
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="toggleExpand('${o.id}')">
+          <i class="ti ti-chevron-down" id="expand-icon-${o.id}"></i>
+        </button>
+      </td>
+      <td>
+        <div style="font-weight:600">${o.buyerName || '—'}</div>
+        <div style="color:var(--muted);font-size:11px">${o.buyerEmail}</div>
+      </td>
+      <td>${o.productName || '—'}</td>
+      <td>${o.quantity}</td>
+      <td>R ${Number(o.totalPrice).toFixed(2)}</td>
+      <td><span class="pill pill-${o.status}">${capitalize(o.status)}</span></td>
+      <td>
+        ${renderTrackingStepper(o)}
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">
+          <span class="pill pill-${o.trackingStatus}">${TRACKING_LABELS[o.trackingStatus] || o.trackingStatus}</span>
+        </div>
+      </td>
+      <td>
+        <div class="action-row">
+          <button class="btn btn-cyan btn-sm" onclick="openTrackingModal('${o.id}', '${o.trackingStatus}', \`${(o.trackingNote||'').replace(/`/g,"'")}\`, '${o.estimatedDelivery||''}')">
+            <i class="ti ti-map-pin"></i> Track
+          </button>
+          ${o.status === 'delivered'
+            ? `<button class="btn btn-red btn-sm" onclick="confirmDeleteOrder('${o.id}')"><i class="ti ti-trash"></i> Delete</button>`
+            : ''}
+        </div>
+      </td>
+    </tr>
+    <tr id="expand-${o.id}" style="display:none">
+      <td colspan="8" style="padding:0">
+        <div class="expand-inner">
+          <div class="info-grid">
+            <div class="info-item"><div class="key">Order ID</div><div class="val" style="font-size:11px;color:var(--muted)">${o.id}</div></div>
+            <div class="info-item"><div class="key">Delivery Address</div><div class="val">${o.deliveryAddress || '—'}</div></div>
+            <div class="info-item"><div class="key">Est. Delivery</div><div class="val">${o.estimatedDelivery || '—'}</div></div>
+            <div class="info-item"><div class="key">Placed At</div><div class="val">${new Date(o.createdAt).toLocaleString()}</div></div>
+          </div>
+          ${o.trackingNote ? `<div style="margin-top:12px;padding:10px 14px;background:var(--surface);border-radius:8px;font-size:13px;border-left:3px solid var(--accent2)">${o.trackingNote}</div>` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function toggleExpand(id) {
+  const row  = document.getElementById('expand-' + id);
+  const icon = document.getElementById('expand-icon-' + id);
+  const open = row.style.display === 'table-row';
+  row.style.display = open ? 'none' : 'table-row';
+  icon.className = open ? 'ti ti-chevron-down' : 'ti ti-chevron-up';
+}
+
+function filterOrders() {
+  const q      = document.getElementById('order-search').value.toLowerCase();
+  const status = document.getElementById('order-status-filter').value;
+  const filtered = allOrders.filter(o => {
+    const matchQ = !q
+      || (o.buyerName||'').toLowerCase().includes(q)
+      || (o.buyerEmail||'').toLowerCase().includes(q)
+      || (o.productName||'').toLowerCase().includes(q);
+    const matchS = !status || o.status === status;
+    return matchQ && matchS;
+  });
+  renderOrders(filtered);
+}
+
+// ─── Tracking Modal ───
+function openTrackingModal(orderId, currentStatus, currentNote, currentEta) {
+  document.getElementById('track-order-id').value      = orderId;
+  document.getElementById('track-order-display').value = orderId.slice(0,18) + '…';
+  document.getElementById('track-status').value        = currentStatus || 'order_placed';
+  document.getElementById('track-note').value          = currentNote || '';
+  document.getElementById('track-eta').value           = currentEta || '';
+  openModal('tracking-modal');
+}
+
+async function submitTracking() {
+  const id            = document.getElementById('track-order-id').value;
+  const trackingStatus = document.getElementById('track-status').value;
+  const trackingNote  = document.getElementById('track-note').value;
+  const estimatedDelivery = document.getElementById('track-eta').value;
+
+  try {
+    await adminFetch(`/orders/${id}/tracking`, {
+      method: 'PATCH',
+      body: JSON.stringify({ trackingStatus, trackingNote, estimatedDelivery })
+    });
+    toast('Tracking updated successfully!');
+    closeModal('tracking-modal');
+    loadOrders();
+    loadStats();
+  } catch (e) {
+    toast('Failed: ' + e.message, 'error');
+  }
+}
+
+// ─── Delete Order ───
+function confirmDeleteOrder(id) {
+  document.getElementById('confirm-title').textContent = 'Delete Delivered Order?';
+  document.getElementById('confirm-msg').textContent   = 'This will permanently remove this order record. Only delivered orders can be deleted. This cannot be undone.';
+  document.getElementById('confirm-ok-btn').onclick    = () => deleteOrder(id);
+  openModal('confirm-modal');
+}
+
+async function deleteOrder(id) {
+  closeModal('confirm-modal');
+  try {
+    await adminFetch(`/orders/${id}`, { method: 'DELETE' });
+    toast('Order deleted.');
+    loadOrders();
+    loadStats();
+  } catch (e) {
+    toast('Delete failed: ' + e.message, 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════
+// USERS
+// ═══════════════════════════════════════════════
+async function loadUsers() {
+  document.getElementById('users-body').innerHTML = '<tr class="loading-row"><td colspan="6">Loading users…</td></tr>';
+  try {
+    const data = await adminFetch('/admin/users');
+    allUsers = data.users || [];
+    renderUsers(allUsers);
+  } catch (e) {
+    toast('Failed to load users: ' + e.message, 'error');
+  }
+}
+
+function renderUsers(users) {
+  const tbody = document.getElementById('users-body');
+  if (!users.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="6">No users found.</td></tr>'; return; }
+
+  tbody.innerHTML = users.map(u => {
+    let statusPill, statusLabel;
+    if (u.isSuspended) {
+      statusPill  = 'pill-suspended'; statusLabel = 'Suspended';
+    } else if (u.isApproved) {
+      statusPill  = 'pill-approved';  statusLabel = 'Approved';
+    } else {
+      statusPill  = 'pill-pending-user'; statusLabel = 'Pending';
+    }
+
+    return `
+      <tr>
+        <td><div style="font-weight:600">${u.name}</div></td>
+        <td style="color:var(--muted);font-size:12px">${u.email}</td>
+        <td><span class="pill pill-${u.role}">${capitalize(u.role)}</span></td>
+        <td>${u.region || '—'}</td>
+        <td><span class="pill ${statusPill}">${statusLabel}</span></td>
+        <td>
+          <div class="action-row">
+            ${!u.isApproved && !u.isSuspended ? `
+              <button class="btn btn-green btn-sm" onclick="approveUser('${u.id}','${u.name}')">
+                <i class="ti ti-check"></i> Approve
+              </button>
+            ` : ''}
+            ${u.isApproved && !u.isSuspended ? `
+              <button class="btn btn-warn btn-sm" onclick="openSuspendModal('${u.id}')">
+                <i class="ti ti-ban"></i> Suspend
+              </button>
+            ` : ''}
+            ${u.isSuspended ? `
+              <button class="btn btn-green btn-sm" onclick="approveUser('${u.id}','${u.name}')">
+                <i class="ti ti-refresh"></i> Reinstate
+              </button>
+            ` : ''}
+            <button class="btn btn-red btn-sm" onclick="confirmDeleteUser('${u.id}','${u.name}')">
+              <i class="ti ti-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterUsers() {
+  const q      = document.getElementById('user-search').value.toLowerCase();
+  const role   = document.getElementById('user-role-filter').value;
+  const status = document.getElementById('user-status-filter').value;
+
+  const filtered = allUsers.filter(u => {
+    const matchQ = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
+    const matchR = !role || u.role === role;
+    let matchS = true;
+    if (status === 'pending')   matchS = !u.isApproved && !u.isSuspended;
+    if (status === 'approved')  matchS = u.isApproved && !u.isSuspended;
+    if (status === 'suspended') matchS = u.isSuspended;
+    return matchQ && matchR && matchS;
+  });
+  renderUsers(filtered);
+}
+
+async function approveUser(id, name) {
+  try {
+    await adminFetch(`/admin/users/${id}/approve`, { method: 'PATCH' });
+    toast(`✅ ${name} approved!`);
+    loadUsers();
+    loadStats();
+  } catch (e) {
+    toast('Failed: ' + e.message, 'error');
+  }
+}
+
+function openSuspendModal(id) {
+  document.getElementById('suspend-user-id').value = id;
+  document.getElementById('suspend-reason').value  = '';
+  openModal('suspend-modal');
+}
+
+async function submitSuspend() {
+  const id     = document.getElementById('suspend-user-id').value;
+  const reason = document.getElementById('suspend-reason').value;
+  try {
+    await adminFetch(`/admin/users/${id}/suspend`, {
+      method: 'PATCH',
+      body: JSON.stringify({ reason })
+    });
+    toast('User suspended.');
+    closeModal('suspend-modal');
+    loadUsers();
+    loadStats();
+  } catch (e) {
+    toast('Failed: ' + e.message, 'error');
+  }
+}
+
+function confirmDeleteUser(id, name) {
+  document.getElementById('confirm-title').textContent = `Delete user "${name}"?`;
+  document.getElementById('confirm-msg').textContent   = 'This permanently removes the user account. This action cannot be undone.';
+  document.getElementById('confirm-ok-btn').onclick    = () => deleteUser(id);
+  openModal('confirm-modal');
+}
+
+async function deleteUser(id) {
+  closeModal('confirm-modal');
+  try {
+    await adminFetch(`/admin/users/${id}`, { method: 'DELETE' });
+    toast('User deleted.');
+    loadUsers();
+    loadStats();
+  } catch (e) {
+    toast('Failed: ' + e.message, 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════
+// PRODUCTS
+// ═══════════════════════════════════════════════
+async function loadProducts() {
+  document.getElementById('products-body').innerHTML = '<tr class="loading-row"><td colspan="6">Loading products…</td></tr>';
+  try {
+    const data = await adminFetch('/admin/products');
+    allProducts = data.products || [];
+    renderProducts(allProducts);
+  } catch (e) {
+    toast('Failed to load products: ' + e.message, 'error');
+  }
+}
+
+function renderProducts(products) {
+  const tbody = document.getElementById('products-body');
+  if (!products.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="6">No products found.</td></tr>'; return; }
+
+  tbody.innerHTML = products.map(p => `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${p.imageUrl ? `<img src="${p.imageUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:8px;" onerror="this.style.display='none'">` : ''}
+          <span style="font-weight:600">${p.name}</span>
+        </div>
+      </td>
+      <td style="color:var(--muted);font-size:12px">${p.farmerEmail}</td>
+      <td>R ${Number(p.price).toFixed(2)}</td>
+      <td>${p.stock ?? '—'}</td>
+      <td>${p.location || '—'}</td>
+      <td>
+        <button class="btn btn-red btn-sm" onclick="confirmDeleteProduct('${p.id}','${p.name.replace(/'/g,"\\'")}')">
+          <i class="ti ti-trash"></i> Remove
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterProducts() {
+  const q = document.getElementById('product-search').value.toLowerCase();
+  const filtered = allProducts.filter(p =>
+    p.name.toLowerCase().includes(q) || (p.farmerEmail||'').toLowerCase().includes(q)
+  );
+  renderProducts(filtered);
+}
+
+function confirmDeleteProduct(id, name) {
+  document.getElementById('confirm-title').textContent = `Remove product "${name}"?`;
+  document.getElementById('confirm-msg').textContent   = 'This will permanently delete the product listing. Existing orders will still reference this product ID.';
+  document.getElementById('confirm-ok-btn').onclick    = () => deleteProduct(id);
+  openModal('confirm-modal');
+}
+
+async function deleteProduct(id) {
+  closeModal('confirm-modal');
+  try {
+    await adminFetch(`/admin/products/${id}`, { method: 'DELETE' });
+    toast('Product removed.');
+    loadProducts();
+    loadStats();
+  } catch (e) {
+    toast('Failed: ' + e.message, 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+function renderTrackingStepper(order) {
+  const currentStep = order.trackingStep || 1;
+  const total = 5;
+  let html = '<div class="tracking-stepper">';
+  for (let i = 1; i <= total; i++) {
+    const done   = i < currentStep;
+    const active = i === currentStep;
+    html += `<div class="step-dot ${done ? 'done' : active ? 'active' : ''}"></div>`;
+    if (i < total) {
+      html += `<div class="step-line ${done ? 'done' : ''}"></div>`;
+    }
+  }
+  html += '</div>';
+  return html;
+}
+
+async function refreshAll() {
+  await loadStats();
+  // Reload current section data
+  const active = document.querySelector('.section.active');
+  if (active) {
+    const id = active.id.replace('section-', '');
+    if (id === 'orders')   loadOrders();
+    if (id === 'users')    loadUsers();
+    if (id === 'products') loadProducts();
+  }
+  toast('Refreshed!');
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+(async function init() {
+  await loadStats();
+  await loadOrders(); // pre-load for recent orders widget on overview
+})();
+</script>
+</body>
+</html>

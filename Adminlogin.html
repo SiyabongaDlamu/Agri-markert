@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriMarket Hub | Admin</title>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green-deep:   #0d2b1a;
+      --green-mid:    #1a4d2e;
+      --green-light:  #2d7a4f;
+      --amber:        #e67e22;
+      --cream:        #faf6ef;
+      --cream-dark:   #f0e9dc;
+      --text-dark:    #0d1f13;
+      --text-muted:   #6b7c6e;
+      --error:        #c0392b;
+      --white:        #ffffff;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Mono', monospace;
+      background-image: url("Sunrise\ over\ peaceful\ farmland.png");
+    }
+
+    /* background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 20%, rgba(45,122,79,0.3) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 80% at 10% 90%, rgba(230,126,34,0.1) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* subtle grid */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: var(--cream);
+      border-radius: 20px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.06),
+        0 40px 80px rgba(0,0,0,0.4);
+      animation: rise 0.5s ease both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header {
+      margin-bottom: 36px;
+    }
+
+    .card-eyebrow {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--green-light);
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: -1px;
+    }
+
+    /* fields */
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-wrap .icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      padding: 14px 16px 14px 44px;
+      border: 1.5px solid var(--cream-dark);
+      border-radius: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--text-dark);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-wrap input:focus {
+      border-color: var(--green-light);
+      box-shadow: 0 0 0 3px rgba(45,122,79,0.1);
+    }
+
+    .toggle-pw {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      color: var(--text-muted);
+      padding: 4px;
+    }
+
+    /* error */
+    .error-msg {
+      display: none;
+      background: #fdf0ef;
+      border: 1px solid #f5c6c2;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--error);
+      margin-bottom: 20px;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .error-msg.show { display: flex; }
+
+    /* button */
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: var(--green-mid);
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .submit-btn:hover {
+      background: var(--green-light);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(26,77,46,0.3);
+    }
+
+    .submit-btn:active { transform: translateY(0); }
+
+    .submit-btn.loading { pointer-events: none; opacity: 0.8; }
+    .submit-btn .btn-text { transition: opacity 0.2s; }
+    .submit-btn .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .submit-btn.loading .btn-text { opacity: 0; }
+    .submit-btn.loading .spinner  { display: block; }
+
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .security-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 24px;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-8px); }
+      40%       { transform: translateX(8px); }
+      60%       { transform: translateX(-5px); }
+      80%       { transform: translateX(5px); }
+    }
+
+    .shake { animation: shake 0.4s ease; }
+
+    @media (max-width: 480px) {
+      .card { padding: 36px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <div class="card">
+    <div class="card-header">
+      <p class="card-eyebrow">Restricted Access</p>
+      <h2 class="card-title">Admin Sign In</h2>
+    </div>
+
+    <div class="error-msg" id="errorMsg">
+      
+      <span id="errorText">Invalid credentials. Access denied.</span>
+    </div>
+
+    <form id="loginForm" autocomplete="off">
+      <div class="field">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <span class="icon"></span>
+          <input type="email" id="emailInput" placeholder="admin@domain.com" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <div class="input-wrap">
+         
+          <input type="password" id="passwordInput" placeholder="••••••••••••" required>
+          <button type="button" class="toggle-pw" id="togglePw" title="Show/hide password">👁</button>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span class="btn-text">Access Dashboard</span>
+        <span class="spinner"></span>
+      </button>
+    </form>
+
+    <div class="security-note">
+      
+    </div>
+  </div>
+</div>
+
+<script>
+  const ADMIN_EMAIL    = 'Admin.developer@ump.ac.za';
+  const ADMIN_PASSWORD = 'Codecrafters1';
+  const DASHBOARD_URL  = "AdminDashboard.html";
+
+  const form          = document.getElementById('loginForm');
+  const emailInput    = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const submitBtn     = document.getElementById('submitBtn');
+  const errorMsg      = document.getElementById('errorMsg');
+  const errorText     = document.getElementById('errorText');
+  const togglePw      = document.getElementById('togglePw');
+
+  togglePw.addEventListener('click', () => {
+    const isHidden = passwordInput.type === 'password';
+    passwordInput.type = isHidden ? 'text' : 'password';
+    togglePw.textContent = isHidden ? '' : '👁';
+  });
+
+  function showError(msg) {
+    errorText.textContent = msg;
+    errorMsg.classList.add('show');
+    document.querySelector('.card').classList.add('shake');
+    setTimeout(() => document.querySelector('.card').classList.remove('shake'), 400);
+  }
+
+  function hideError() {
+    errorMsg.classList.remove('show');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideError();
+
+    const email    = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    submitBtn.classList.add('loading');
+    await new Promise(r => setTimeout(r, 900));
+
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      sessionStorage.setItem('agri_admin_auth', 'true');
+      sessionStorage.setItem('agri_admin_email', email);
+
+      submitBtn.querySelector('.btn-text').textContent = '✓ Verified — Redirecting...';
+      submitBtn.classList.remove('loading');
+
+      setTimeout(() => {
+        window.location.href = DASHBOARD_URL;
+      }, 600);
+    } else {
+      submitBtn.classList.remove('loading');
+      if (email !== ADMIN_EMAIL) {
+        showError('Email address not recognised.');
+      } else {
+        showError('Incorrect password. Access denied.');
+      }
+    }
+  });
+
+  emailInput.addEventListener('input', hideError);
+  passwordInput.addEventListener('input', hideError);
+</script>
+</body>
+</html>

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Sign In / Sign Up | AgriMarket Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      /* FIX: background shorthand must come FIRST, then override size/attachment */
+      background: url('Sunrise over peaceful farmland.png') center center / cover no-repeat fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 0;
+    }
+
+    .auth-wrapper {
+      width: 100%;
+      max-width: 520px;
+      background: rgba(10, 30, 15, 0.55);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 2.5rem;
+      box-shadow: 0 30px 50px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.08);
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-card { padding: 2.2rem 2rem 2.5rem; }
+
+    .brand-header { text-align: center; margin-bottom: 1.8rem; }
+    .brand-header img { width: 90px; height: auto; margin-bottom: 0.6rem; }
+    .brand-header p { color: orange; font-size: 0.85rem; margin-top: 0.3rem; }
+
+    .toggle-forms {
+      display: flex;
+      gap: 0.75rem;
+      background: rgba(0,0,0,0.4);
+      padding: 0.35rem;
+      border-radius: 3rem;
+      margin-bottom: 1.8rem;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .toggle-btn {
+      flex: 1;
+      text-align: center;
+      padding: 0.7rem 0;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 2rem;
+      cursor: pointer;
+      background: transparent;
+      color: #d4e6c5;
+      border: none;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+    .toggle-btn.active {
+      background: linear-gradient(135deg, #e67e22, #f39c12);
+      color: white;
+      box-shadow: 0 4px 12px rgba(230,126,34,0.35);
+    }
+
+    .role-group { margin-bottom: 1.5rem; }
+    .role-label { font-size: 0.8rem; font-weight: 500; color: orange; margin-bottom: 0.6rem; }
+    .role-options { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .role-card {
+      flex: 1;
+      background: rgba(0,0,0,0.5);
+      border: 1.5px solid #4a7c5e;
+      border-radius: 1.2rem;
+      padding: 0.7rem 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #e2f0d8;
+      font-weight: 500;
+      font-size: 0.88rem;
+      user-select: none;
+    }
+    .role-card:hover { border-color: #f39c12; color: #f39c12; }
+    .role-card.selected {
+      background: linear-gradient(135deg, #e67e22, #f39c12);
+      border-color: #fde047;
+      color: white;
+      box-shadow: 0 4px 12px rgba(230,126,34,0.35);
+    }
+
+    .input-group { margin-bottom: 1.2rem; position: relative; }
+    .input-group i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #e67e22;
+      font-size: 1rem;
+      pointer-events: none;
+    }
+    .input-group input {
+      width: 100%;
+      background: rgba(0,0,0,0.5);
+      border: 1.5px solid #4a7c5e;
+      padding: 0.85rem 1rem 0.85rem 2.7rem;
+      font-size: 0.95rem;
+      border-radius: 1.2rem;
+      color: white;
+      outline: none;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+    .input-group input:focus {
+      border-color: #e67e22;
+      box-shadow: 0 0 0 3px rgba(230,126,34,0.2);
+      background: rgba(0,0,0,0.7);
+    }
+    .input-group input::placeholder { color: #6a9b7a; }
+
+    .form-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0.8rem 0 1.5rem;
+      font-size: 0.8rem;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #e0e7d5;
+      cursor: pointer;
+    }
+    .checkbox-label input { accent-color: #e67e22; }
+    .forgot-link {
+      color: #e67e22;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 0.8rem;
+      font-family: inherit;
+    }
+    .forgot-link:hover { color: #fde047; }
+
+    .action-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #e67e22, #f39c12);
+      border: none;
+      padding: 0.9rem;
+      border-radius: 1.6rem;
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      font-family: inherit;
+    }
+    .action-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
+    .action-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+    .msg-toast {
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      border-radius: 1rem;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.3rem;
+      font-size: 0.85rem;
+      display: none;
+      align-items: center;
+      gap: 0.6rem;
+      border-left: 3px solid;
+    }
+    .msg-toast.show { display: flex; }
+    .msg-toast.error { border-left-color: #f87171; color: #ffbaba; }
+    .msg-toast.success { border-left-color: #4ade80; color: #bbf7d0; }
+    .msg-toast.info { border-left-color: #facc15; color: #fef9c3; }
+
+    .divider { text-align: center; color: #6a9b7a; font-size: 0.72rem; margin-top: 0.5rem; }
+
+    /* FIX: only one form visible at a time */
+    .auth-form { display: none; }
+    .auth-form.active-form { display: block; }
+
+    /* Forgot password modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: rgba(10,30,15,0.95);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 1.8rem;
+      padding: 2rem;
+      width: 100%;
+      max-width: 400px;
+      backdrop-filter: blur(20px);
+    }
+    .modal-box h3 { color: #f0fdf4; font-size: 1.1rem; margin-bottom: 0.4rem; }
+    .modal-box p { color: #6a9b7a; font-size: 0.82rem; margin-bottom: 1.2rem; }
+    .modal-actions { display: flex; gap: 0.75rem; margin-top: 1rem; }
+    .modal-actions button { flex: 1; padding: 0.7rem; border-radius: 1.2rem; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none; font-family: inherit; }
+    .btn-cancel { background: rgba(255,255,255,0.07); color: #a0b89a; }
+    .btn-send { background: linear-gradient(135deg, #e67e22, #f39c12); color: white; }
+  </style>
+</head>
+<body>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+
+    <div class="brand-header">
+      <img src="agri-Market_Hub__2_-removebg-preview.png" alt="Agri-Market Hub">
+      <a href="Adminlogin.html">Admin</a>
+      <p>Farmers · Buyers · Suppliers — One Platform</p>
+    </div>
+
+    <div class="toggle-forms">
+      <button class="toggle-btn active" id="showSignInBtn" type="button">Sign In</button>
+      <button class="toggle-btn" id="showSignUpBtn" type="button">Register</button>
+    </div>
+
+    <div id="globalMessage" class="msg-toast"></div>
+
+    <!-- SIGN IN FORM -->
+    <form id="signinForm" class="auth-form active-form" novalidate>
+      <div class="role-group">
+        <div class="role-label"><i class="fas fa-users"></i> Select your role</div>
+        <div class="role-options" id="signinRoleGroup">
+          <div class="role-card" data-role="farmer"><i class="fas fa-tractor"></i> Farmer</div>
+          <div class="role-card" data-role="buyer"><i class="fas fa-shopping-basket"></i> Buyer</div>
+          
+        </div>
+        <input type="hidden" id="signinRole" value="">
+      </div>
+      <div class="input-group">
+        <i class="fas fa-envelope"></i>
+        <input type="email" id="loginEmail" placeholder="Email address" autocomplete="email">
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+      </div>
+      <div class="form-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="rememberMeCheckbox">
+          <span>Keep me signed in</span>
+        </label>
+        <button type="button" class="forgot-link" id="forgotPasswordTrigger">Forgot password?</button>
+      </div>
+      <button type="submit" class="action-btn" id="signinBtn">
+        <i class="fas fa-arrow-right-to-bracket"></i> Sign In
+      </button>
+      <div class="divider">role‑based access · secure marketplace</div>
+    </form>
+
+    <!-- SIGN UP FORM -->
+    <form id="signupForm" class="auth-form" novalidate>
+      <div class="role-group">
+        <div class="role-label"><i class="fas fa-user-plus"></i> Register as</div>
+        <div class="role-options" id="signupRoleGroup">
+          <div class="role-card" data-role="farmer"><i class="fas fa-tractor"></i> Farmer</div>
+          <div class="role-card" data-role="buyer"><i class="fas fa-shopping-basket"></i> Buyer</div>
+          
+        </div>
+        <input type="hidden" id="signupRole" value="">
+      </div>
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" id="signupName" placeholder="Full name" autocomplete="name">
+      </div>
+      <div class="input-group">
+        <i class="fas fa-envelope"></i>
+        <input type="email" id="signupEmail" placeholder="Email address" autocomplete="email">
+      </div>
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="signupPassword" placeholder="Password (min 6 characters)">
+      </div>
+      <div class="input-group">
+        <i class="fas fa-check-circle"></i>
+        <input type="password" id="signupConfirm" placeholder="Confirm password">
+      </div>
+      <button type="submit" class="action-btn" id="signupBtn">
+        <i class="fas fa-user-plus"></i> Create Account
+      </button>
+      <div class="divider">join our agricultural network</div>
+    </form>
+
+  </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div class="modal-overlay" id="forgotModal">
+  <div class="modal-box">
+    <h3><i class="fas fa-key" style="color:#e67e22;margin-right:0.5rem"></i>Reset Password</h3>
+    <p>Enter your email and we'll send you a reset link.</p>
+    <div class="input-group">
+      <i class="fas fa-envelope"></i>
+      <input type="email" id="forgotEmail" placeholder="Your email address">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="forgotCancel" type="button">Cancel</button>
+      <button class="btn-send" id="forgotSend" type="button">Send Reset Link</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = "http://localhost:3000/api";
+
+  // ── DOM refs ──────────────────────────────────────────────────────────────
+  const showSignInBtn    = document.getElementById("showSignInBtn");
+  const showSignUpBtn    = document.getElementById("showSignUpBtn");
+  const signinForm       = document.getElementById("signinForm");
+  const signupForm       = document.getElementById("signupForm");
+  const msgBox           = document.getElementById("globalMessage");
+  const loginEmail       = document.getElementById("loginEmail");
+  const loginPassword    = document.getElementById("loginPassword");
+  const signupName       = document.getElementById("signupName");
+  const signupEmail      = document.getElementById("signupEmail");
+  const signupPassword   = document.getElementById("signupPassword");
+  const signupConfirm    = document.getElementById("signupConfirm");
+  const signupRoleInput  = document.getElementById("signupRole");
+  const signinRoleInput  = document.getElementById("signinRole");
+  const signinBtn        = document.getElementById("signinBtn");
+  const signupBtn        = document.getElementById("signupBtn");
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function showMessage(text, type = "info") {
+    msgBox.innerHTML = `<i class="fas fa-${type === 'error' ? 'circle-exclamation' : type === 'success' ? 'circle-check' : 'circle-info'}"></i> ${text}`;
+    msgBox.className = `msg-toast show ${type}`;
+    if (type !== "info") {
+      setTimeout(() => msgBox.classList.remove("show"), 4000);
+    }
+  }
+
+  function setLoading(btn, loading, defaultHTML) {
+    btn.disabled = loading;
+    btn.innerHTML = loading
+      ? '<i class="fas fa-spinner fa-spin"></i> Please wait...'
+      : defaultHTML;
+  }
+
+  function saveSession(token, user) {
+    const storage = document.getElementById("rememberMeCheckbox")?.checked
+      ? localStorage
+      : sessionStorage;
+    storage.setItem("agri_token", token);
+    storage.setItem("agri_user", JSON.stringify(user));
+    // Always also save to localStorage so other pages can find it
+    localStorage.setItem("agri_token", token);
+    localStorage.setItem("agri_user", JSON.stringify(user));
+  }
+
+  function redirectToDashboard(role) {
+    const map = {
+      farmer:   "farmer.html",
+      buyer:    "buyer.html",
+      supplier: "supplier-dashboard.html"
+    };
+    window.location.href = map[role] || "Home.html";
+  }
+
+  // ── FIX: Only auto-login if token is genuinely valid ─────────────────────
+  function checkAutoLogin() {
+    const token = localStorage.getItem("agri_token");
+    const userStr = localStorage.getItem("agri_user");
+    if (!token || !userStr) return false;
+    try {
+      const user = JSON.parse(userStr);
+      if (user && user.role) {
+        redirectToDashboard(user.role);
+        return true;
+      }
+    } catch (e) {
+      // Corrupted data — clear it
+      localStorage.removeItem("agri_token");
+      localStorage.removeItem("agri_user");
+    }
+    return false;
+  }
+
+  // ── Role selection ────────────────────────────────────────────────────────
+  function setupRoleSelection() {
+    document.querySelectorAll("#signupRoleGroup .role-card").forEach(card => {
+      card.addEventListener("click", () => {
+        document.querySelectorAll("#signupRoleGroup .role-card").forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        signupRoleInput.value = card.dataset.role;
+      });
+    });
+    document.querySelectorAll("#signinRoleGroup .role-card").forEach(card => {
+      card.addEventListener("click", () => {
+        document.querySelectorAll("#signinRoleGroup .role-card").forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        signinRoleInput.value = card.dataset.role;
+      });
+    });
+  }
+
+  // ── Form toggle ───────────────────────────────────────────────────────────
+  function setupFormToggle() {
+    showSignInBtn.addEventListener("click", () => {
+      signinForm.classList.add("active-form");
+      signupForm.classList.remove("active-form");
+      showSignInBtn.classList.add("active");
+      showSignUpBtn.classList.remove("active");
+      msgBox.classList.remove("show");
+    });
+    showSignUpBtn.addEventListener("click", () => {
+      signupForm.classList.add("active-form");
+      signinForm.classList.remove("active-form");
+      showSignUpBtn.classList.add("active");
+      showSignInBtn.classList.remove("active");
+      msgBox.classList.remove("show");
+    });
+  }
+
+  // ── Sign In ───────────────────────────────────────────────────────────────
+  async function handleSignIn(e) {
+    e.preventDefault();
+    const email    = loginEmail.value.trim();
+    const password = loginPassword.value;
+
+    if (!email || !password) {
+      showMessage("Email and password are required", "error");
+      return;
+    }
+
+    const defaultHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Sign In';
+    setLoading(signinBtn, true, defaultHTML);
+
+    try {
+      showMessage("Signing in...", "info");
+      const res  = await fetch(`${API}/auth/login`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showMessage(data.error || "Login failed. Check your credentials.", "error");
+        return;
+      }
+
+      saveSession(data.token, data.user);
+      showMessage("Welcome back! Redirecting...", "success");
+      setTimeout(() => redirectToDashboard(data.user.role), 1200);
+
+    } catch (err) {
+      showMessage("Cannot reach server. Make sure the backend is running.", "error");
+    } finally {
+      setLoading(signinBtn, false, defaultHTML);
+    }
+  }
+
+  // ── Sign Up ───────────────────────────────────────────────────────────────
+  async function handleSignUp(e) {
+    e.preventDefault();
+    const name     = signupName.value.trim();
+    const email    = signupEmail.value.trim();
+    const password = signupPassword.value;
+    const confirm  = signupConfirm.value;
+    const role     = signupRoleInput.value;
+
+    if (!role)                       { showMessage("Please select a role", "error"); return; }
+    if (!name)                       { showMessage("Full name is required", "error"); return; }
+    if (!email)                      { showMessage("Email is required", "error"); return; }
+    if (!password)                   { showMessage("Password is required", "error"); return; }
+    if (password.length < 6)         { showMessage("Password must be at least 6 characters", "error"); return; }
+    if (password !== confirm)        { showMessage("Passwords do not match", "error"); return; }
+
+    const defaultHTML = '<i class="fas fa-user-plus"></i> Create Account';
+    setLoading(signupBtn, true, defaultHTML);
+
+    try {
+      showMessage("Creating your account...", "info");
+      const res  = await fetch(`${API}/auth/register`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ name, email, password, role })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showMessage(data.error || "Registration failed. Try a different email.", "error");
+        return;
+      }
+
+      saveSession(data.token, data.user);
+      showMessage("Account created! Redirecting...", "success");
+      setTimeout(() => redirectToDashboard(data.user.role), 1200);
+
+    } catch (err) {
+      showMessage("Cannot reach server. Make sure the backend is running.", "error");
+    } finally {
+      setLoading(signupBtn, false, defaultHTML);
+    }
+  }
+
+  // ── Forgot Password Modal ─────────────────────────────────────────────────
+  function setupForgotPassword() {
+    const modal       = document.getElementById("forgotModal");
+    const trigger     = document.getElementById("forgotPasswordTrigger");
+    const cancelBtn   = document.getElementById("forgotCancel");
+    const sendBtn     = document.getElementById("forgotSend");
+    const forgotEmail = document.getElementById("forgotEmail");
+
+    trigger.addEventListener("click", () => {
+      forgotEmail.value = loginEmail.value; // pre-fill if typed
+      modal.classList.add("show");
+    });
+    cancelBtn.addEventListener("click", () => modal.classList.remove("show"));
+    modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("show"); });
+
+    sendBtn.addEventListener("click", async () => {
+      const email = forgotEmail.value.trim();
+      if (!email) { showMessage("Enter an email address first", "error"); return; }
+
+      sendBtn.disabled = true;
+      sendBtn.textContent = "Sending...";
+
+      try {
+        // Try your backend endpoint; fall back gracefully if not implemented yet
+        const res = await fetch(`${API}/auth/forgot-password`, {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ email })
+        });
+        modal.classList.remove("show");
+        showMessage("If that email exists, a reset link has been sent.", "success");
+      } catch {
+        modal.classList.remove("show");
+        showMessage("Reset email sent (if account exists).", "success");
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = "Send Reset Link";
+      }
+    });
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  // FIX: ALWAYS attach listeners first, THEN check auto-login.
+  // This prevents a dead page if redirect happens asynchronously.
+  setupFormToggle();
+  setupRoleSelection();
+  setupForgotPassword();
+  signinForm.addEventListener("submit", handleSignIn);
+  signupForm.addEventListener("submit", handleSignUp);
+
+  // Auto-login check runs last so listeners are already in place
+  checkAutoLogin();
+</script>
+</body>
+</html>

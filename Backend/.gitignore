@@ -1,0 +1,22 @@
+# Environment variables — NEVER commit these
+.env
+*.env
+
+# Firebase service account key (if downloaded as JSON)
+*serviceAccountKey*.json
+*firebase-adminsdk*.json
+
+# Node dependencies
+node_modules/
+*/node_modules/
+
+# Test coverage output
+coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>About Us | Agri-Market Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ========== SLIDESHOW BACKGROUND ========== */
+        .slideshow-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -2;
+        }
+        .slideshow-bg img {
+            position: absolute;
+            inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+        .slideshow-bg img.active { opacity: 1; }
+
+        .slide-indicators {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 50;
+        }
+        .slide-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            border: none;
+        }
+        .slide-dot.active { background: #4ade80; transform: scale(1.4); }
+
+        /* ========== LIGHT THEME ========== */
+        :root {
+            --overlay-color: rgba(0, 0, 0, 0.45);
+            --navbar-bg: rgba(0, 0, 0, 0.4);
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --card-border: rgba(255, 255, 255, 0.15);
+            --text-primary: white;
+            --text-secondary: #c8e0b0;
+            --accent-green: #4ade80;
+            --accent-yellow: #eab308;
+            --accent-hover: #f5c518;
+            --footer-bg: rgba(0, 0, 0, 0.8);
+            --values-bg: rgba(0, 0, 0, 0.3);
+            --stat-box-bg: rgba(0, 0, 0, 0.3);
+            --btn-login-bg: orange;
+            --btn-login-border: #d8aa12;
+        }
+
+        /* ========== DARK MODE ========== */
+        body.dark {
+            --overlay-color: rgba(0, 0, 0, 0.78);
+            --navbar-bg: rgba(0, 0, 0, 0.85);
+            --card-bg: rgba(10, 15, 10, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f5fdf5;
+            --text-secondary: #c0dbb5;
+            --accent-green: #8bffb5;
+            --accent-yellow: #ffdf6b;
+            --accent-hover: #ffe99a;
+            --footer-bg: #050a05;
+            --values-bg: rgba(0, 0, 0, 0.55);
+            --stat-box-bg: rgba(0, 0, 0, 0.55);
+            --btn-login-bg: #b85d00;
+            --btn-login-border: #e68a2e;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: var(--overlay-color);
+            pointer-events: none;
+            z-index: -1;
+            transition: background-color 0.4s;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: color 0.2s;
+        }
+
+        /* ========== NAVBAR ========== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; }
+        .logo i { font-size: 32px; color: var(--accent-yellow); }
+        .logo span { background: linear-gradient(135deg, #fff, var(--accent-yellow)); background-clip: text; -webkit-background-clip: text; color: transparent; }
+
+        .nav-links { display: flex; gap: 30px; flex-wrap: wrap; }
+        .nav-links a { color: var(--text-primary); text-decoration: none; font-weight: 500; transition: 0.3s; position: relative; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent-yellow); }
+        .nav-links a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: var(--accent-yellow); transition: 0.3s; }
+        .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+
+        .nav-buttons { display: flex; gap: 12px; align-items: center; }
+
+        .theme-toggle {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 60px;
+            padding: 8px 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .theme-toggle i { font-size: 1.2rem; }
+        .theme-toggle:hover { background: var(--accent-yellow); color: #1a472a; border-color: var(--accent-yellow); }
+
+        .btn-login {
+            background: var(--btn-login-bg);
+            border: 1px solid var(--btn-login-border);
+            padding: 8px 20px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-login:hover { background: #eff70d; color: #1a472a; }
+
+        /* ========== ABOUT HERO ========== */
+        .about-hero {
+            text-align: center;
+            padding: 80px 20px 60px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .about-hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff, var(--accent-yellow));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .about-hero p { font-size: 18px; line-height: 1.6; color: var(--text-secondary); }
+
+        /* ========== MISSION & VISION ========== */
+        .mission-vision {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 30px;
+        }
+        .mv-card {
+            flex: 1;
+            min-width: 250px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 35px 25px;
+            text-align: center;
+            border: 1px solid var(--card-border);
+            transition: 0.3s;
+        }
+        .mv-card:hover { transform: translateY(-8px); background: rgba(255,255,255,0.12); border-color: rgba(234,179,8,0.4); }
+        .mv-card i { font-size: 48px; color: var(--accent-yellow); margin-bottom: 20px; }
+        .mv-card h3 { font-size: 28px; margin-bottom: 15px; }
+        .mv-card p { color: var(--text-secondary); line-height: 1.5; }
+
+        /* ========== OUR STORY ========== */
+        .story-section {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 0 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 50px;
+            align-items: center;
+        }
+        .story-text { flex: 1; }
+        .story-text h2 { font-size: 36px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .story-text p { color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; }
+
+        .story-stats { flex: 1; display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
+        .stat-box {
+            background: var(--stat-box-bg);
+            border-radius: 28px;
+            padding: 30px 20px;
+            text-align: center;
+            min-width: 150px;
+            flex: 1;
+        }
+        .stat-number { font-size: 42px; font-weight: 800; color: var(--accent-yellow); }
+        .stat-label { font-size: 14px; color: var(--text-secondary); margin-top: 8px; }
+
+        /* ========== VALUES ========== */
+        .values-section { background: var(--values-bg); padding: 60px 30px; margin: 40px 0; }
+        .values-container { max-width: 1200px; margin: 0 auto; text-align: center; }
+        .values-container h2 { font-size: 36px; margin-bottom: 40px; }
+        .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; }
+        .value-card { background: var(--card-bg); border-radius: 28px; padding: 30px 20px; transition: 0.3s; }
+        .value-card:hover { background: rgba(255,255,255,0.15); transform: translateY(-5px); }
+        .value-card i { font-size: 44px; color: var(--accent-yellow); margin-bottom: 15px; }
+        .value-card h4 { font-size: 22px; margin-bottom: 10px; }
+        .value-card p { font-size: 14px; color: var(--text-secondary); }
+
+        /* ========== TEAM ========== */
+        .team-section { max-width: 1200px; margin: 60px auto; padding: 0 30px; text-align: center; }
+        .team-section h2 { font-size: 36px; margin-bottom: 40px; }
+        .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px; }
+        .team-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            padding: 30px 20px;
+            transition: 0.3s;
+            border: 1px solid var(--card-border);
+        }
+        .team-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.12); }
+        .team-avatar {
+            width: 120px; height: 120px;
+            background: linear-gradient(135deg, var(--accent-yellow), var(--accent-hover));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            overflow: hidden;
+        }
+        .team-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .team-avatar i { font-size: 48px; color: #0b2b1a; }
+        .team-card h4 { font-size: 22px; margin-bottom: 5px; }
+        .team-role { color: var(--accent-yellow); font-weight: 500; margin-bottom: 12px; }
+        .team-bio { font-size: 13px; color: var(--text-secondary); margin-bottom: 15px; }
+
+        /* ========== CTA ========== */
+        .cta-section {
+            background: var(--accent-yellow);
+            margin: 60px 30px 30px;
+            border-radius: 48px;
+            padding: 50px 30px;
+            text-align: center;
+            color: #0b2b1a;
+        }
+        .cta-section h3 { font-size: 32px; margin-bottom: 15px; }
+        .cta-section p { margin-bottom: 25px; font-size: 16px; }
+        .cta-btn {
+            background: #0b2b1a;
+            color: white;
+            border: none;
+            padding: 14px 36px;
+            border-radius: 60px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .cta-btn:hover { background: #1a4a2f; transform: translateY(-2px); }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            background: var(--footer-bg);
+            padding: 30px 50px 20px;
+            margin-top: 60px;
+            border-top: 1px solid rgba(234,179,8,0.3);
+        }
+        .footer-content {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+        .footer-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+        .footer-links { display: flex; gap: 30px; flex-wrap: wrap; }
+        .footer-links a { color: var(--text-secondary); text-decoration: none; transition: 0.3s; }
+        .footer-links a:hover { color: var(--accent-yellow); }
+        .copyright { text-align: center; font-size: 12px; color: #9bbf8f; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 15px 20px; flex-direction: column; }
+            .about-hero h1 { font-size: 40px; }
+            .story-section { flex-direction: column; }
+            .values-grid { grid-template-columns: 1fr; }
+            .cta-section { margin: 40px 20px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Slideshow Background -->
+    <div class="slideshow-bg" id="slideshowBg"></div>
+    <div class="slide-indicators" id="slideIndicators"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            
+            
+        </div>
+        <div class="nav-links">
+            <a href="Home.html">Home</a>
+            <a href="aboutus.html" class="active">About Us</a>
+            <a href="contacts.html">Contacts</a>
+            
+        </div>
+        <div class="nav-buttons">
+            <button id="brightnessToggle" class="theme-toggle" aria-label="Switch between light and dark mode">
+                <i id="themeIcon" class="fas fa-sun"></i>
+                <span id="themeLabel">Light mode</span>
+            </button>
+            <button class="btn-login" onclick="window.location.href='SignUP.html'">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </div>
+    </nav>
+
+    <!-- About Hero -->
+    <div class="about-hero">
+        <h1>About Agri‑Market Hub</h1>
+        <p>Connecting you directly to local farmers – fresh, fair, and sustainable.</p>
+    </div>
+
+    <!-- Mission & Vision -->
+    <div class="mission-vision">
+        <div class="mv-card">
+            <i class="fas fa-bullseye"></i>
+            <h3>Our Mission</h3>
+            <p>To empower local farmers and provide urban consumers with the freshest, most affordable produce – while building a transparent, sustainable food system.</p>
+        </div>
+        <div class="mv-card">
+            <i class="fas fa-eye"></i>
+            <h3>Our Vision</h3>
+            <p>A South Africa where every farmer gets fair value for their harvest and every family can access healthy, locally‑grown food with a single click.</p>
+        </div>
+        <div class="mv-card">
+            <i class="fas fa-hand-holding-heart"></i>
+            <h3>Our Promise</h3>
+            <p>Zero middlemen, honest pricing, same‑day dispatch from farm to your table. We guarantee freshness and traceability.</p>
+        </div>
+    </div>
+
+    <!-- Our Story + Stats -->
+    <div class="story-section">
+        <div class="story-text">
+            <h2><i class="fas fa-leaf"></i> Our Story</h2>
+            <p>Agri‑Market Hub was born in 2023 when a group of tech entrepreneurs and small‑scale farmers in Mpumalanga realised that traditional supply chains were failing both producers and consumers. We built a platform that cuts out unnecessary intermediaries, allowing farmers to sell directly and buyers to get the best quality at lower prices.</p>
+            <p>Today, we proudly work with over 150 local farmers across Limpopo, Mpumalanga, Western Cape, and KZN. Our community has grown to more than 12,000 happy customers, and we're just getting started.</p>
+        </div>
+        <div class="story-stats">
+            <div class="stat-box">
+                <div class="stat-number">150+</div>
+                <div class="stat-label">Partner Farmers</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">12k+</div>
+                <div class="stat-label">Happy Customers</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Provinces</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Values -->
+    <div class="values-section">
+        <div class="values-container">
+            <h2>Our Core Values</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <i class="fas fa-seedling"></i>
+                    <h4>Sustainability</h4>
+                    <p>We promote regenerative farming and reduce food miles by sourcing locally.</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-handshake"></i>
+                    <h4>Fair Trade</h4>
+                    <p>Farmers receive 85% of every sale – we believe in fair compensation.</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h4>Transparency</h4>
+                    <p>From farm gate to your kitchen, every step is traceable.</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-users"></i>
+                    <h4>Community</h4>
+                    <p>We build relationships, not just transactions. Our farmers are our family.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Section -->
+    <div class="team-section">
+        <h2>Meet the Team</h2>
+        <div class="team-grid">
+            <div class="team-card">
+                <div class="team-avatar"><img src="Siyabonga Dlamu.jpeg" alt="Siyabonga Dlamu"></div>
+                <h4>Dlamu Siyabonga</h4>
+                <div class="team-role">Developer</div>
+                <div class="team-bio">Full‑stack developer who believes technology can solve food insecurity.</div>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar"><img src="Moenzi.jpeg" alt="Kgapane Menzi"></div>
+                <h4>Kgapane Menzi</h4>
+                <div class="team-role">Developer</div>
+                <div class="team-bio">Full‑stack developer who believes technology can solve food insecurity.</div>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar"><img src="Shaun mavuso.jpeg" alt="Shaun Mavuso"></div>
+                <h4>Shaun Mavuso</h4>
+                <div class="team-role">Developer</div>
+                <div class="team-bio">Full‑stack developer who believes technology can solve food insecurity.</div>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar"><img src="xichavo Maluleka.jpeg" alt="Xichavo Maluleke"></div>
+                <h4>Xichavo Maluleke</h4>
+                <div class="team-role">Developer</div>
+                <div class="team-bio">Full‑stack developer who believes technology can solve food insecurity.</div>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar"><img src="Nkiyasi.jpeg" alt="Baloyi Nkiyasi"></div>
+                <h4>Baloyi Nkiyasi</h4>
+                <div class="team-role">Developer</div>
+                <div class="team-bio">Full‑stack developer who believes technology can solve food insecurity.</div>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar"><img src="Msimango.jpeg" alt="Sam Chivodze"></div>
+                <h4>Sam Chivodze</h4>
+                <div class="team-role">Developer</div>
+                <div class="team-bio">Full‑stack developer who believes technology can solve food insecurity.</div>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar"><img src="Ntaka.jpeg" alt="Ntakadzeni Netshivhulana"></div>
+                <h4>Ntakadzeni Netshivhulana</h4>
+                <div class="team-role">Developer</div>
+                <div class="team-bio">Full‑stack developer who believes technology can solve food insecurity.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="cta-section">
+        <h3>Join the Agri‑Market Family</h3>
+        <p>Whether you're a farmer or a fresh‑food lover, we invite you to be part of the change.</p>
+        <button class="cta-btn" onclick="window.location.href='SignUP.html'">Sign Up Today →</button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i ><img src="agri-Market_Hub__2_-removebg-preview.png" alt=""></i>
+                
+            </div>
+            <div class="footer-links">
+                <a href="aboutus.html">About Us</a>
+                <a href="contacts.html">Contact</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms & Conditions</a>
+            </div>
+        </div>
+        <div class="copyright">
+            © 2026 Agri-Market Hub. All rights reserved. Fresh from farm to table.
+        </div>
+    </footer>
+
+    <script>
+        // =====================================================================
+        // SLIDESHOW BACKGROUND — same 5 images as all pages
+        // =====================================================================
+        const farmImages = [
+            "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1600&q=80",
+            "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1600&q=80",
+            "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1600&q=80",
+            "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1600&q=80",
+            "https://images.unsplash.com/photo-1495107334309-fcf20504a5ab?w=1600&q=80"
+        ];
+
+        (function initSlideshow() {
+            const bg = document.getElementById('slideshowBg');
+            const indicators = document.getElementById('slideIndicators');
+            let current = 0;
+            let timer = null;
+
+            farmImages.forEach((src, i) => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = 'Farm background ' + (i + 1);
+                if (i === 0) img.classList.add('active');
+                bg.appendChild(img);
+
+                const dot = document.createElement('button');
+                dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
+                dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+                dot.addEventListener('click', () => { goTo(i); resetTimer(); });
+                indicators.appendChild(dot);
+            });
+
+            function goTo(index) {
+                bg.children[current].classList.remove('active');
+                indicators.children[current].classList.remove('active');
+                current = (index + farmImages.length) % farmImages.length;
+                bg.children[current].classList.add('active');
+                indicators.children[current].classList.add('active');
+            }
+
+            function resetTimer() {
+                clearInterval(timer);
+                timer = setInterval(() => goTo(current + 1), 5000);
+            }
+
+            resetTimer();
+        })();
+
+        // =====================================================================
+        // BRIGHTNESS / DARK MODE TOGGLE
+        // =====================================================================
+        (function initThemeToggle() {
+            const THEME_KEY = 'agrimarket_theme';
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeLabel = document.getElementById('themeLabel');
+            const toggleBtn = document.getElementById('brightnessToggle');
+
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    body.classList.add('dark');
+                    if (themeIcon) themeIcon.className = 'fas fa-moon';
+                    if (themeLabel) themeLabel.innerText = 'Dark mode';
+                    localStorage.setItem(THEME_KEY, 'dark');
+                } else {
+                    body.classList.remove('dark');
+                    if (themeIcon) themeIcon.className = 'fas fa-sun';
+                    if (themeLabel) themeLabel.innerText = 'Light mode';
+                    localStorage.setItem(THEME_KEY, 'light');
+                }
+            }
+
+            function getInitialTheme() {
+                const saved = localStorage.getItem(THEME_KEY);
+                if (saved === 'dark' || saved === 'light') return saved;
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+                return 'light';
+            }
+
+            setTheme(getInitialTheme());
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    const isDark = body.classList.contains('dark');
+                    setTheme(isDark ? 'light' : 'dark');
+                });
+            }
+
+            const darkModeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+            const handleSystemChange = (e) => {
+                if (localStorage.getItem(THEME_KEY) === null) {
+                    setTheme(e.matches ? 'dark' : 'light');
+                }
+            };
+            if (darkModeMedia.addEventListener) {
+                darkModeMedia.addEventListener('change', handleSystemChange);
+            } else if (darkModeMedia.addListener) {
+                darkModeMedia.addListener(handleSystemChange);
+            }
+        })();
+    </script>
+</body>
+</html>

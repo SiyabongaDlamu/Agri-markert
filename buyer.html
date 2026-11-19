@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AgriMarket Hub | Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            background-image: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2070&auto=format');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(245, 245, 245, 0.88);
+            z-index: -1;
+        }
+        .header {
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(12px);
+            padding: 15px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo i { font-size: 28px; color: #e67e22; }
+        .logo span { font-size: 20px; font-weight: 700; color: white; }
+        .nav-links { display: flex; gap: 25px; align-items: center; flex-wrap: wrap; }
+        .user-info { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.15); padding: 5px 15px; border-radius: 40px; }
+        .user-info i { color: #e67e22; }
+        .user-info span { color: white; font-size: 13px; font-weight: 500; }
+        .track-btn { background: rgba(46,125,50,0.85); color: white; padding: 8px 18px; border-radius: 40px; font-size: 14px; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .track-btn:hover { transform: translateY(-2px); }
+        .logout-btn { background: rgba(220, 53, 69, 0.9); color: white; padding: 8px 20px; border-radius: 30px; border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .logout-btn:hover { background: #c82333; transform: translateY(-2px); }
+        .search-bar { flex: 1; max-width: 400px; display: flex; }
+        .search-bar input { width: 100%; padding: 10px 15px; border: none; border-radius: 8px 0 0 8px; font-size: 14px; }
+        .search-bar button { padding: 10px 15px; background: #e67e22; border: none; border-radius: 0 8px 8px 0; color: white; cursor: pointer; }
+        .cart-icon { position: relative; cursor: pointer; }
+        .cart-icon i { font-size: 24px; color: white; }
+        .cart-count { position: absolute; top: -10px; right: -12px; background: #e67e22; color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%; min-width: 18px; text-align: center; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; display: flex; gap: 30px; flex-wrap: wrap; }
+        .products-section { flex: 2; min-width: 280px; }
+        .products-title { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 20px; }
+        .products-title h2 { font-size: 20px; font-weight: 700; color: #1a1a2e; background: rgba(255,255,255,0.9); padding: 5px 15px; border-radius: 30px; display: inline-block; }
+        .product-count-badge { background: #e67e22; color: white; padding: 5px 12px; border-radius: 30px; font-size: 13px; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; }
+        .product-card { background: white; border-radius: 16px; padding: 20px 15px; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.08); transition: 0.3s; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .product-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #f5f0e8;
+        }
+        .product-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 14px;
+        }
+        .product-icon span { font-size: 48px; line-height: 1; }
+        .product-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: #2c3e2f; }
+        .product-price { font-size: 20px; font-weight: 800; color: #e67e22; margin: 10px 0; }
+        .in-stock { font-size: 12px; color: #28a745; margin-bottom: 10px; }
+        .product-location { font-size: 11px; color: #888; margin-bottom: 12px; }
+        .add-to-cart-btn { background: #e67e22; color: white; border: none; padding: 10px 0; border-radius: 40px; cursor: pointer; font-weight: 600; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .add-to-cart-btn:hover { background: #d35400; }
+        .cart-section { flex: 1.2; min-width: 320px; }
+        .cart-card { background: white; border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); overflow: hidden; position: sticky; top: 90px; }
+        .cart-header { padding: 20px; border-bottom: 1px solid #eee; background: #fffaf5; }
+        .cart-header h2 { font-size: 20px; font-weight: 800; color: #1a1a2e; }
+        .cart-items { max-height: 400px; overflow-y: auto; padding: 10px; }
+        .cart-item { display: flex; gap: 12px; padding: 15px; border-bottom: 1px solid #f0f0f0; }
+        .cart-item-icon { width: 50px; height: 50px; background: #fef3e8; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; overflow: hidden; flex-shrink: 0; }
+        .cart-item-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+        .cart-item-details { flex: 1; }
+        .cart-item-name { font-size: 14px; font-weight: 700; color: #333; margin-bottom: 4px; }
+        .cart-item-price { font-size: 16px; font-weight: 800; color: #e67e22; }
+        .cart-item-actions { display: flex; align-items: center; gap: 15px; margin-top: 8px; flex-wrap: wrap; }
+        .quantity-selector { display: flex; align-items: center; gap: 10px; border: 1px solid #ddd; border-radius: 30px; padding: 4px 12px; }
+        .quantity-btn { background: none; border: none; font-size: 18px; font-weight: bold; cursor: pointer; color: #e67e22; }
+        .remove-btn { background: none; border: none; color: #e74c3c; font-size: 12px; cursor: pointer; text-decoration: underline; }
+        .cart-summary { padding: 20px; background: #fafafa; border-top: 1px solid #eee; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+        .summary-total { display: flex; justify-content: space-between; margin: 15px 0; padding-top: 15px; border-top: 1px solid #ddd; font-weight: 800; font-size: 20px; }
+        .checkout-btn { background: #e67e22; color: white; border: none; padding: 14px; border-radius: 40px; font-weight: 700; cursor: pointer; width: 100%; font-size: 16px; }
+        .checkout-btn:hover { background: #d35400; }
+        .checkout-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .empty-cart { text-align: center; padding: 50px 20px; color: #888; }
+        .footer-links { display: flex; justify-content: center; gap: 30px; margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.6); font-size: 12px; }
+        .footer-links a { color: #ddd; text-decoration: none; }
+        .modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 1.5rem; }
+        .modal-overlay.active { display: flex; }
+        .modal-card { max-width: 600px; width: 100%; background: white; border-radius: 2rem; overflow: hidden; box-shadow: 0 30px 50px rgba(0,0,0,0.3); animation: modalFadeIn 0.3s ease; }
+        .modal-header { background: #2d6a4f; padding: 1.2rem 1.8rem; display: flex; align-items: center; justify-content: space-between; color: white; }
+        .modal-header h3 { font-weight: 700; font-size: 1.3rem; }
+        .close-modal { background: none; border: none; color: white; font-size: 1.6rem; cursor: pointer; }
+        .modal-body { padding: 1.8rem; max-height: 70vh; overflow-y: auto; }
+        .btn-primary { background: #e67e22; color: white; border: none; padding: 0.9rem; border-radius: 3rem; font-weight: 800; font-size: 1rem; cursor: pointer; width: 100%; margin-top: 0.5rem; }
+        .btn-primary:hover { background: #d35400; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #4a627a; margin-bottom: 0.3rem; }
+        .form-control { width: 100%; padding: 0.8rem 1rem; border: 1.5px solid #e2e8f0; border-radius: 1rem; font-size: 0.95rem; }
+        .row-2 { display: flex; gap: 1rem; }
+        .tracking-steps { display: flex; justify-content: space-between; margin: 20px 0; flex-wrap: wrap; gap: 8px; }
+        .step { flex: 1; text-align: center; font-size: 12px; font-weight: 600; color: #aaa; position: relative; }
+        .step.active { color: #e67e22; }
+        .step.completed { color: #28a745; }
+        .step i { font-size: 24px; display: block; margin-bottom: 8px; background: #f0f0f0; width: 44px; height: 44px; line-height: 44px; border-radius: 44px; margin: 0 auto 8px; }
+        .step.active i { background: #e67e22; color: white; }
+        .step.completed i { background: #28a745; color: white; }
+        .status-badge { display: inline-block; background: #e67e22; color: white; border-radius: 30px; padding: 4px 12px; font-size: 12px; font-weight: bold; }
+        .order-card { background: #f8f9fa; border-radius: 20px; padding: 15px; margin-bottom: 16px; border-left: 5px solid #e67e22; }
+        @keyframes modalFadeIn { from { opacity:0; transform:scale(0.96); } to { opacity:1; transform:scale(1); } }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        .toast-msg { position: fixed; bottom: 20px; right: 20px; background: #28a745; color: white; padding: 12px 20px; border-radius: 40px; z-index: 1200; animation: slideIn 0.3s; font-weight: 500; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="logo"><span>AgriMarket Hub</span></div>
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search fresh produce...">
+        <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
+    </div>
+    <div class="nav-links">
+        <div class="user-info"><i class="fas fa-user-circle"></i><span id="userNameDisplay">Buyer</span></div>
+        <button class="track-btn" id="showOrdersBtn"><i class="fas fa-map-marked-alt"></i> My Orders / Track</button>
+        <div class="cart-icon" onclick="document.querySelector('.cart-section').scrollIntoView({behavior:'smooth'})">
+            <i class="fas fa-shopping-cart"></i><span class="cart-count" id="cartCount">0</span>
+        </div>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="products-section">
+        <div class="products-title">
+            <h2><i class="fas fa-store"></i> Fresh from Local Farmers</h2>
+            <span class="product-count-badge" id="productCount">0 products</span>
+        </div>
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+    <div class="cart-section">
+        <div class="cart-card">
+            <div class="cart-header">
+                <h2><i class="fas fa-shopping-basket"></i> Shopping Cart</h2>
+                <div class="cart-subtitle"><i class="fas fa-check-circle"></i> Fresh from farm to table</div>
+            </div>
+            <div class="cart-items" id="cartItemsContainer"></div>
+            <div class="cart-summary" id="cartSummary"></div>
+        </div>
+    </div>
+</div>
+<div class="footer-links">
+    <a href="#">About Us</a><a href="#">Contact Farmers</a><a href="#">Sustainability</a>
+</div>
+
+<!-- Address Modal -->
+<div id="addressModal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header"><h3><i class="fas fa-truck"></i> Delivery Address</h3><button class="close-modal" onclick="closeAddressModal()">&times;</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label>Full Name</label><input type="text" id="fullName" class="form-control" placeholder="Full name"></div>
+            <div class="form-group"><label>Street Address</label><input type="text" id="street" class="form-control" placeholder="House number & street"></div>
+            <div class="row-2">
+                <div class="form-group"><label>City</label><input type="text" id="city" class="form-control" placeholder="City"></div>
+                <div class="form-group"><label>Postal Code</label><input type="text" id="zip" class="form-control" placeholder="Postal code"></div>
+            </div>
+            <div class="form-group"><label>Phone Number</label><input type="tel" id="phone" class="form-control" placeholder="Phone number"></div>
+            <button class="btn-primary" onclick="saveAddressAndProceed()"><i class="fas fa-arrow-right"></i> Continue to Payment</button>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header" style="background:#0057a3;"><h3><i class="fas fa-credit-card"></i> Secure Checkout</h3><button class="close-modal" onclick="closePaymentModal()">&times;</button></div>
+        <div class="modal-body">
+            <div style="background:#f8faff; border-radius:1.2rem; padding:0.8rem 1.2rem; display:flex; justify-content:space-between; margin-bottom:1.5rem;"><span>Total to pay:</span><strong style="font-size:1.4rem; color:#e67e22;">R <span id="modalTotalAmount">0.00</span></strong></div>
+            <div class="form-group"><label>Cardholder Name</label><input type="text" id="cardName" class="form-control" value="Demo Buyer"></div>
+            <div class="form-group"><label>Card Number</label><input type="text" id="cardNumber" class="form-control" maxlength="19" placeholder="4242 4242 4242 4242" value="4242 4242 4242 4242"></div>
+            <div class="row-2">
+                <div class="form-group"><label>Expiry (MM/YY)</label><input type="text" id="expiry" class="form-control" placeholder="MM/YY" value="12/28"></div>
+                <div class="form-group"><label>CVV</label><input type="text" id="cvv" class="form-control" maxlength="4" placeholder="123" value="123"></div>
+            </div>
+            <div class="form-group"><label>Email (receipt)</label><input type="email" id="paymentEmail" class="form-control" placeholder="your@email.com"></div>
+            <button class="btn-primary" id="confirmPayBtn">💳 Pay Securely</button>
+            <div style="font-size:0.7rem; text-align:center; margin-top:1rem;"><i class="fas fa-lock"></i> Test card: 4242 4242 4242 4242 | CVV 123</div>
+        </div>
+    </div>
+</div>
+
+<!-- Tracking Modal -->
+<div id="trackingModal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header" style="background:#1e466e;"><h3><i class="fas fa-satellite-dish"></i> Live Order Tracking</h3><button class="close-modal" onclick="closeTrackingModal()">&times;</button></div>
+        <div class="modal-body" id="trackingModalBody"></div>
+    </div>
+</div>
+
+<!-- Orders List Modal -->
+<div id="ordersListModal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header"><h3><i class="fas fa-history"></i> My Orders</h3><button class="close-modal" onclick="closeOrdersListModal()">&times;</button></div>
+        <div class="modal-body" id="ordersListContainer"></div>
+    </div>
+</div>
+
+<script>
+    const EMAILJS_CONFIG = {
+        publicKey: "VTu3GSoW34YgH24rO",
+        serviceId: "service_aqacbm9",
+        templateId: "template_jvmyfoj"
+    };
+    emailjs.init(EMAILJS_CONFIG.publicKey);
+
+    async function sendRealEmail(templateParams) {
+        try {
+            await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, templateParams);
+            return true;
+        } catch (error) {
+            console.error("Email failed", error);
+            showToast(`Email error: ${error.text || "Check console"}`, true);
+            return false;
+        }
+    }
+
+    let currentUser = null;
+
+    function checkAuth() {
+        const token = localStorage.getItem("agri_token");
+        const user = localStorage.getItem("agri_user");
+        if (!token || !user) { window.location.href = "SignUP.html"; return false; }
+        try {
+            currentUser = JSON.parse(user);
+            document.getElementById('userNameDisplay').innerText = currentUser.name || currentUser.email;
+            return true;
+        } catch(e) {
+            localStorage.removeItem("agri_token");
+            localStorage.removeItem("agri_user");
+            window.location.href = "SignUP.html";
+            return false;
+        }
+    }
+
+    if (!checkAuth()) throw new Error("Not logged in");
+
+    let products = [];
+    let cart = JSON.parse(localStorage.getItem('agriCart')) || [];
+
+    // ✅ FIX: orders are NO LONGER stored in localStorage.
+    // They are fetched from the server per logged-in user.
+    let orders = [];
+
+    const STATUS_STEPS = [
+        { key: "placed",           label: "Order Placed",      description: "Will be dispatched in 2 days", stepValue: 1 },
+        { key: "picked",           label: "Order Picked Up",   description: "Packed & ready for courier",   stepValue: 2 },
+        { key: "out_for_delivery", label: "Out for Delivery",  description: "On the way to your address",   stepValue: 3 },
+        { key: "delivered",        label: "Delivered",         description: "Enjoy your fresh produce!",    stepValue: 4 }
+    ];
+
+    async function loadProducts() {
+        try {
+            const response = await fetch("/api/products");
+            const data = await response.json();
+            products = data.products.map(p => ({
+                id: p.id,
+                name: p.name,
+                price: parseFloat(p.price),
+                location: p.location || p.region,
+                region: p.location || p.region,
+                description: p.description,
+                imageUrl: p.imageUrl || null,
+                icon: p.imageUrl ? null : "🥬"
+            }));
+            renderProducts();
+            document.getElementById('productCount').innerText = `${products.length} products`;
+        } catch (err) {
+            console.error("Failed to load products:", err);
+        }
+    }
+
+    function renderProducts(search = "") {
+        const grid = document.getElementById('productsGrid');
+        let filtered = products.filter(p =>
+            !search ||
+            p.name.toLowerCase().includes(search.toLowerCase()) ||
+            (p.location && p.location.toLowerCase().includes(search.toLowerCase()))
+        );
+
+        if (!filtered.length) {
+            grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:60px; color:#888;">
+                <i class="fas fa-tractor" style="font-size:48px; margin-bottom:12px; display:block;"></i>
+                <h3>No products found</h3></div>`;
+            return;
+        }
+
+        grid.innerHTML = filtered.map(p => {
+            const imageHtml = p.imageUrl
+                ? `<img src="${p.imageUrl}" alt="${escapeHtml(p.name)}" onerror="this.parentElement.innerHTML='<span style=\\'font-size:48px;\\'>🥬</span>'">`
+                : `<span>${p.icon ? p.icon : '🥬'}</span>`;
+
+            const stockDisplay = p.description ? p.description.substring(0, 30) : 'Fresh produce';
+
+            return `
+            <div class="product-card">
+                <div class="product-icon">${imageHtml}</div>
+                <div class="product-name">${escapeHtml(p.name)}</div>
+                <div class="product-price">R ${parseFloat(p.price).toFixed(2)}</div>
+                <div class="in-stock"><i class="fas fa-check-circle"></i> ${escapeHtml(stockDisplay)}</div>
+                <div class="product-location"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(p.location || 'Local Farm')}</div>
+                <button class="add-to-cart-btn" onclick="addToCart('${p.id}')">
+                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                </button>
+            </div>`;
+        }).join('');
+    }
+
+    function addToCart(pid) {
+        const product = products.find(p => p.id == pid);
+        if (!product) return;
+        const existing = cart.find(i => i.id == pid);
+        if (existing) existing.quantity++;
+        else cart.push({ ...product, quantity: 1 });
+        saveCart();
+        showToast(`${product.name} added to cart`);
+    }
+
+    function saveCart() { localStorage.setItem('agriCart', JSON.stringify(cart)); updateCartUI(); }
+
+    function updateQuantity(id, delta) {
+        const idx = cart.findIndex(i => i.id == id);
+        if (idx !== -1) {
+            const newQ = cart[idx].quantity + delta;
+            if (newQ >= 1 && newQ <= 99) { cart[idx].quantity = newQ; saveCart(); }
+            else if (newQ < 1) removeFromCart(id);
+        }
+    }
+
+    function removeFromCart(id) { cart = cart.filter(i => i.id != id); saveCart(); showToast("Item removed"); }
+
+    function updateCartUI() {
+        const totalQty = cart.reduce((s, i) => s + i.quantity, 0);
+        document.getElementById('cartCount').innerText = totalQty;
+        const container = document.getElementById('cartItemsContainer');
+        const summaryDiv = document.getElementById('cartSummary');
+
+        if (cart.length === 0) {
+            container.innerHTML = `<div class="empty-cart"><i class="fas fa-shopping-cart" style="font-size:48px;margin-bottom:12px;display:block;opacity:0.3;"></i><p>Your cart is empty</p></div>`;
+            summaryDiv.innerHTML = `<div class="summary-row"><span>TOTAL: (0 items)</span><span>R 0</span></div><button class="checkout-btn" disabled>Proceed to Checkout</button>`;
+            return;
+        }
+
+        let subtotal = 0;
+        let itemsHtml = '';
+        cart.forEach(item => {
+            subtotal += item.price * item.quantity;
+
+            const cartIconHtml = item.imageUrl
+                ? `<img src="${item.imageUrl}" alt="${escapeHtml(item.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;" onerror="this.parentElement.innerHTML='🥬'">`
+                : (item.icon && item.icon !== 'null' ? item.icon : '🥬');
+
+            itemsHtml += `
+                <div class="cart-item">
+                    <div class="cart-item-icon">${cartIconHtml}</div>
+                    <div class="cart-item-details">
+                        <div class="cart-item-name">${escapeHtml(item.name)}</div>
+                        <div class="cart-item-price">R ${item.price.toFixed(2)}</div>
+                        <div class="cart-item-actions">
+                            <div class="quantity-selector">
+                                <button class="quantity-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
+                                <span>${item.quantity}</span>
+                                <button class="quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+                            </div>
+                            <button class="remove-btn" onclick="removeFromCart('${item.id}')">Remove</button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+
+        container.innerHTML = itemsHtml;
+        summaryDiv.innerHTML = `
+            <div class="summary-row"><span>Subtotal (${totalQty} items)</span><span>R ${subtotal.toFixed(2)}</span></div>
+            <div class="summary-total"><span>TOTAL:</span><span>R ${subtotal.toFixed(2)}</span></div>
+            <button class="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
+        `;
+    }
+
+    let tempAddress = null;
+
+    function proceedToCheckout() { if (!cart.length) { showToast("Cart empty", true); return; } document.getElementById('addressModal').classList.add('active'); }
+    function closeAddressModal() { document.getElementById('addressModal').classList.remove('active'); }
+
+    function saveAddressAndProceed() {
+        const fullName = document.getElementById('fullName').value.trim();
+        const street   = document.getElementById('street').value.trim();
+        const city     = document.getElementById('city').value.trim();
+        const zip      = document.getElementById('zip').value.trim();
+        const phone    = document.getElementById('phone').value.trim();
+        if (!fullName || !street || !city || !zip || !phone) { showToast("Please fill all address fields", true); return; }
+        tempAddress = { fullName, street, city, zip, phone };
+        closeAddressModal();
+        const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+        document.getElementById('modalTotalAmount').innerText = total.toFixed(2);
+        document.getElementById('paymentModal').classList.add('active');
+    }
+
+    function closePaymentModal() { document.getElementById('paymentModal').classList.remove('active'); }
+
+    const validCards = [{ number: "4242424242424242", cvv: "123", expiry: "12/28" }];
+    function isCardValid(num, cvv) { const clean = num.replace(/\s/g,''); return validCards.some(c => c.number === clean && c.cvv === cvv); }
+
+    function validatePayment() {
+        const cardNumberRaw = document.getElementById('cardNumber').value.replace(/\s/g, '');
+        const cvv    = document.getElementById('cvv').value.trim();
+        const expiry = document.getElementById('expiry').value.trim();
+        const email  = document.getElementById('paymentEmail').value.trim();
+        if (!/^\d{13,16}$/.test(cardNumberRaw)) { showToast("Invalid card number", true); return false; }
+        if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)) { showToast("Expiry format MM/YY", true); return false; }
+        if (!/^\d{3,4}$/.test(cvv)) { showToast("CVV 3-4 digits", true); return false; }
+        if (!email || !email.includes('@')) { showToast("Please enter a valid email address", true); return false; }
+        if (!isCardValid(cardNumberRaw, cvv)) { showToast("Payment declined. Use test card 4242 4242 4242 4242 (CVV 123)", true); return false; }
+        return true;
+    }
+
+    function generateTrackingId() { return 'AGRI-' + Math.random().toString(36).substring(2, 10).toUpperCase(); }
+
+    // ✅ FIX: Save order to the server (tied to logged-in user via JWT token)
+    // Orders are NO LONGER saved to localStorage
+    async function saveOrderToHistory(cartSnapshot, total, address, buyerEmail, buyerName) {
+        const trackingId = generateTrackingId();
+        const newOrder = {
+            trackingId,
+            date: new Date().toISOString(),
+            items: cartSnapshot.map(i => ({
+                name: i.name, quantity: i.quantity, price: i.price,
+                icon: i.icon || '🥬', imageUrl: i.imageUrl || null
+            })),
+            total, address: { ...address },
+            statusKey: "placed", statusLabel: "Order Placed",
+            statusStep: 1, statusDescription: "Will be dispatched in 2 days",
+            buyerEmail, buyerName
+        };
+
+        try {
+            const token = localStorage.getItem("agri_token");
+            const response = await fetch("/api/orders", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(newOrder)
+            });
+            const saved = await response.json();
+            return saved.order || newOrder;
+        } catch (err) {
+            console.error("Failed to save order to server:", err);
+            // Return the order object anyway so checkout can continue
+            return newOrder;
+        }
+    }
+
+    function buildEmailDetails(order, address, items, totalAmount) {
+        const itemsTableRows = items.map(item => `
+            <tr style="border-bottom:1px solid #dee2e6;">
+                <td style="padding:10px 8px; text-align:left;">${escapeHtml(item.name)}</td>
+                <td style="padding:10px 8px; text-align:center;">${item.quantity}</td>
+                <td style="padding:10px 8px; text-align:right;">R ${(item.price * item.quantity).toFixed(2)}</td>
+            </tr>`).join('');
+        return {
+            to_email: order.buyerEmail, to_name: order.buyerName,
+            order_id: order.trackingId, order_date: new Date(order.date).toLocaleString(),
+            address_line: address.street, address_city: address.city, address_zip: address.zip,
+            items_table: itemsTableRows,
+            subtotal: `R ${totalAmount.toFixed(2)}`, delivery_fee: `R 0.00`,
+            driver_tip: `R ${Math.round(totalAmount * 0.1).toFixed(2)}`,
+            total: `R ${totalAmount.toFixed(2)}`,
+            store_name: "AgriMarket Hub", store_address: "123 Farm Road, Stellenbosch, 7600", store_phone: "+27 21 123 4567"
+        };
+    }
+
+    async function processPayment() {
+        if (!validatePayment()) return;
+        const btn = document.getElementById('confirmPayBtn');
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processing...';
+        await new Promise(r => setTimeout(r, 1200));
+        const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+        const cartSnapshot = [...cart];
+        const addressSnapshot = { ...tempAddress };
+        const buyerEmail = document.getElementById('paymentEmail').value.trim();
+        const buyerName  = document.getElementById('fullName').value.trim();
+
+        // ✅ FIX: await the async saveOrderToHistory which posts to server
+        const order = await saveOrderToHistory(cartSnapshot, total, addressSnapshot, buyerEmail, buyerName);
+
+        cart = []; saveCart();
+        closePaymentModal();
+        showToast(`✅ Payment successful! R ${total.toFixed(2)} paid. Order #${order.trackingId}`);
+        const emailDetails = buildEmailDetails(order, addressSnapshot, cartSnapshot, total);
+        const emailSent = await sendRealEmail(emailDetails);
+        if (emailSent) showToast(`📧 Receipt sent to ${buyerEmail}`);
+        showTrackingModal(order);
+        btn.disabled = false; btn.innerHTML = '💳 Pay Securely';
+        tempAddress = null;
+    }
+
+    function showTrackingModal(order) {
+        const currentStepIdx = order.statusStep || 1;
+        const stepHtml = STATUS_STEPS.map((step, idx) => {
+            const stepNum = idx + 1;
+            const cls = stepNum < currentStepIdx ? "completed" : (stepNum === currentStepIdx ? "active" : "");
+            const icons = ['fa-check-circle','fa-boxes','fa-truck','fa-flag-checkered'];
+            return `<div class="step ${cls}"><i class="fas ${icons[idx]}"></i><span>${step.label}</span><br/><small>${step.description}</small></div>`;
+        }).join('');
+
+        const itemsHtml = order.items.map(it => {
+            const img = it.imageUrl
+                ? `<img src="${it.imageUrl}" style="width:28px;height:28px;object-fit:cover;border-radius:6px;vertical-align:middle;">`
+                : (it.icon && it.icon !== 'null' ? it.icon : '🥬');
+            return `<div>${img} ${escapeHtml(it.name)} x${it.quantity} — R${(it.price * it.quantity).toFixed(2)}</div>`;
+        }).join('');
+
+        document.getElementById('trackingModalBody').innerHTML = `
+            <div style="background:#eef2fa; border-radius:20px; padding:12px; margin-bottom:15px;">
+                <span class="status-badge">${order.trackingId}</span>
+                <span style="float:right;">📅 ${new Date(order.date).toLocaleString()}</span>
+            </div>
+            <div class="tracking-steps">${stepHtml}</div>
+            <div><strong><i class="fas fa-map-pin"></i> Delivery:</strong> ${order.address.fullName}, ${order.address.street}, ${order.address.city}</div>
+            <div style="background:#f5f5f5; border-radius:16px; padding:12px; margin:15px 0;"><strong>Items:</strong> ${itemsHtml}</div>
+            <div><strong>Status:</strong> <span style="color:#e67e22;">${order.statusLabel}</span> — ${order.statusDescription}</div>
+            <button class="btn-primary" onclick="closeTrackingModal()">Close</button>`;
+        document.getElementById('trackingModal').classList.add('active');
+    }
+
+    function viewTrackingById(trackingId) {
+        const order = orders.find(o => o.trackingId === trackingId);
+        if (order) { showTrackingModal(order); closeOrdersListModal(); }
+        else showToast("Order not found", true);
+    }
+
+    // ✅ FIX: Load orders from server (only this user's orders via JWT)
+    // Replaced the old localStorage-based showOrdersList
+    async function showOrdersList() {
+        document.getElementById('ordersListModal').classList.add('active');
+        document.getElementById('ordersListContainer').innerHTML = `<p style="text-align:center;padding:30px;color:#888;"><i class="fas fa-spinner fa-pulse"></i> Loading your orders...</p>`;
+
+        try {
+            const token = localStorage.getItem("agri_token");
+            const response = await fetch("/api/orders", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            const data = await response.json();
+            orders = data.orders || [];
+        } catch (err) {
+            showToast("Failed to load orders", true);
+            document.getElementById('ordersListContainer').innerHTML = `<p style="text-align:center;color:#e74c3c;">Could not load orders. Please try again.</p>`;
+            return;
+        }
+
+        if (!orders.length) {
+            document.getElementById('ordersListContainer').innerHTML = `
+                <div class="empty-cart">
+                    <i class="fas fa-box-open" style="font-size:48px;margin-bottom:12px;display:block;opacity:0.3;"></i>
+                    <p>No orders yet.</p>
+                </div>`;
+            return;
+        }
+
+        let list = orders.map(order => `
+            <div class="order-card">
+                <div><strong>${order.trackingId}</strong> <span style="float:right;">${new Date(order.date).toLocaleDateString()}</span></div>
+                <div>Items: ${order.items.length} · Total: R ${order.total.toFixed(2)}</div>
+                <div>Status: <span class="status-badge">${order.statusLabel}</span></div>
+                <button class="btn-primary" style="background:#1e466e; margin-top:8px; padding:6px 12px; font-size:12px;"
+                    onclick="viewTrackingById('${order.trackingId}')">
+                    <i class="fas fa-map-marked-alt"></i> Track Order
+                </button>
+            </div>`).join('');
+
+        document.getElementById('ordersListContainer').innerHTML =
+            list + `<button class="btn-primary" onclick="closeOrdersListModal()">Close</button>`;
+    }
+
+    function closeTrackingModal()   { document.getElementById('trackingModal').classList.remove('active'); }
+    function closeOrdersListModal() { document.getElementById('ordersListModal').classList.remove('active'); }
+    function searchProducts() { renderProducts(document.getElementById('searchInput').value); }
+
+    function logout() {
+        if (confirm('Logout?')) {
+            localStorage.removeItem('agri_token');
+            localStorage.removeItem('agri_user');
+            window.location.href = "SignUP.html";
+        }
+    }
+
+    function showToast(msg, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-msg';
+        toast.style.background = isError ? '#e74c3c' : '#28a745';
+        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.style.animation = 'slideOut 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('confirmPayBtn').addEventListener('click', processPayment);
+    document.getElementById('showOrdersBtn').addEventListener('click', showOrdersList);
+
+    const cardNum = document.getElementById('cardNumber');
+    if (cardNum) cardNum.addEventListener('input', function(e) {
+        let val = e.target.value.replace(/\s/g,'').replace(/\D/g,'').slice(0,16);
+        e.target.value = val.match(/.{1,4}/g)?.join(' ') || val;
+    });
+    const expiryInp = document.getElementById('expiry');
+    if (expiryInp) expiryInp.addEventListener('input', function(e) {
+        let val = e.target.value.replace(/\D/g,'');
+        if (val.length >= 2) e.target.value = val.slice(0,2) + (val.length > 2 ? '/' + val.slice(2,4) : '');
+    });
+
+    loadProducts();
+    updateCartUI();
+</script>
+</body>
+</html>
